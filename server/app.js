@@ -1,27 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Messages = require("./collections/messages");
+const messageHandlers = require("./utils/ws-message-handlers");
+const http = require('http');
+const wss = require('./utils/websocket_server');
 
 const app = express();
+
 app.use(bodyParser.json());
+const server = http.createServer(app);
+const chatSocket = new wss.ChatSocketServer(server, messageHandlers);
+chatSocket.start();
 
-
-app.route('/get').get((request, response) => {
-	Messages.get((array, error) => {
-		if (error){
-			response.send(error);
-		} else {
-			response.json(array);
-		}
-	});
+server.listen(3000, function listening() {
+	console.log(`Listening on localhost:${server.address().port}`);
 });
-
-app.route('/add').post((request, response) => {
-	const message = request.body.message;
-	Messages.insert(message, (status) => {
-		response.send(status);
-	});
-});
-
-const serverInfo = app.listen(3000);
-console.log(`Server running at https://localhost:${serverInfo.address().port}/`);
