@@ -9,12 +9,14 @@ import {AppRegistry, Button, ListView, ScrollView, StyleSheet, Text, TextInput, 
 import {createStore} from "redux";
 import Provider from "react-redux/es/components/Provider";
 import connect from "react-redux/es/connect/connect";
+import * as AsyncStorage from "react-native/Libraries/Storage/AsyncStorage";
 
 const actions = {
 	addMessage: function (state, action) {
+		AsyncStorage.setItem('@Storage:messages', JSON.stringify([...state.messages, action.message]));
 		return {
 			...state,
-			blinks: [...state.blinks, action.message]
+			messages: [...state.messages, action.message]
 		}
 	},
 	setInputText: function (state, action) {
@@ -22,12 +24,26 @@ const actions = {
 			...state,
 			inputText: action.text
 		}
+	},
+	setMessages: function (state, action) {
+		return {
+			...state,
+			messages: action.messages
+		}
 	}
 };
 
+
+AsyncStorage.getItem('@Storage:messages').then(function (messages) {
+	store.dispatch({
+		type: 'setMessages',
+		messages: JSON.parse(messages) || []
+	});
+});
+
 const initialState = {
 	inputText: '',
-	blinks: []
+	messages: [],
 };
 
 function messenger(state = initialState, action) {
@@ -93,7 +109,7 @@ class Mess extends Component {
 					<ListView
 						enableEmptySections={true}
 						styles={{flex: 1}}
-						dataSource={this.ds.cloneWithRows(this.props.blinks)}
+						dataSource={this.ds.cloneWithRows(this.props.messages)}
 						renderRow={(row) => <Text style={row.style}>{row.text}</Text>}
 					/>
 				</ScrollView>
