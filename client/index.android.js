@@ -110,7 +110,7 @@ class Mess extends Component {
 						style={{height: 40, flex: 1}}
 						title="Send"
 						onPress={() => {
-							this.props.inputText ? this.addMessage(this.props.inputText) : console.log('empty');
+							this.props.inputText && this.addMessage(this.props.inputText);
 						}}
 					/>
 				</View>
