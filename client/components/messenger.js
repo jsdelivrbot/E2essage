@@ -1,7 +1,10 @@
-import { Button, ListView, ScrollView, StyleSheet, Text, TextInput, View} from "react-native";
+import {Button, ListView, ScrollView, StyleSheet, Text, TextInput, View} from "react-native";
 import connect from "react-redux/es/connect/connect";
 import * as AsyncStorage from "react-native/Libraries/Storage/AsyncStorage";
+import KeyboardSpacer from 'react-native-keyboard-spacer';
 import React, {Component} from "react";
+import Message from "./message";
+import {KeyboardAvoidingView} from "react-native/Libraries/Components/Keyboard/KeyboardAvoidingView";
 
 class Mess extends Component {
 	constructor(props) {
@@ -13,41 +16,57 @@ class Mess extends Component {
 		this.dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.text !== r2.text});
 	};
 
+	_clearInput() {
+		this.refs.messageInput.setNativeProps({text: ''});
+		this.props.setInputText('');
+	}
+
+	_addMessage(text) {
+		this.props.addMessage(text);
+		this._clearInput();
+	}
+
 	render() {
 		return (
 			<View style={{
 				flex: 1,
 				flexDirection: 'column',
 			}}>
-				<Text style={styles.bigRed}>Messages</Text>
+				<Text style={styles.title}>Messages</Text>
 				<ScrollView
-					ref='messages'
+					ref='scroller'
+					style={{
+						flex: 1,
+					}}
 					keyboardShouldPersistTaps='always'
-					onContentSizeChange={(contentWidth, contentHeight) =>
-					{this.refs.messages.scrollTo({y: contentHeight});
+					onContentSizeChange={(contentWidth, contentHeight) => {
+						this._scrollToBottom = () => this.refs.scroller.scrollTo({y: contentHeight});
+						this._scrollToBottom();
 					}}
 				>
 					<ListView
 						enableEmptySections={true}
-						styles={{flex: 1}}
+						style={{flex: 1}}
 						dataSource={this.dataSource.cloneWithRows(this.props.messages)}
-						renderRow={(row) => <Text style={row.style}>{row.text}</Text>}
+						renderRow={(row) => <Message text={row.text} yours={false}/>}
 					/>
 				</ScrollView>
 				<View style={{
+					height: 40,
 					flexDirection: 'row',
 				}}>
 					<TextInput
 						ref="messageInput"
-						style={{height: 40, flex: 3}}
+						style={{height: 40, flex: 5, fontSize: 18}}
 						placeholder="What do you want to say?"
 						onChangeText={(text) => this.props.setInputText(text)}
 					/>
 					<Button
-						style={{height: 40, flex: 1}}
-						title="Send"
+						style={[styles.sendButton, {height: 40, flex: 2}]}
+						title="SEND"
+						color='#37474f'
 						onPress={() => {
-							this.props.inputText && this.props.addMessage(this.props.inputText);
+							this.props.inputText && this._addMessage(this.props.inputText);
 						}}
 					/>
 				</View>
@@ -57,13 +76,15 @@ class Mess extends Component {
 }
 
 const styles = StyleSheet.create({
-	bigRed: {
-		color: 'red',
+	title: {
+		color: 'white',
+		padding: 10,
+		backgroundColor: '#37474f',
 		fontWeight: 'bold',
 		fontSize: 30,
 	},
-	blue: {
-		color: 'blue',
+	sendButton: {
+		color: '#eceff1',
 	}
 });
 

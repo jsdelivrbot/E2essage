@@ -1,4 +1,5 @@
 import {createStoreWithActions} from "./create-store";
+import * as AsyncStorage from "react-native/Libraries/Storage/AsyncStorage";
 
 
 export const MessengerStore = createStoreWithActions(
