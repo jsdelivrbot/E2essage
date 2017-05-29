@@ -1,10 +1,8 @@
-import {Button, ListView, ScrollView, StyleSheet, Text, TextInput, View} from "react-native";
+import {Button, ListView, ScrollView, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View} from "react-native";
 import connect from "react-redux/es/connect/connect";
 import * as AsyncStorage from "react-native/Libraries/Storage/AsyncStorage";
-import KeyboardSpacer from 'react-native-keyboard-spacer';
 import React, {Component} from "react";
 import Message from "./message";
-import {KeyboardAvoidingView} from "react-native/Libraries/Components/Keyboard/KeyboardAvoidingView";
 
 class Mess extends Component {
 	constructor(props) {
@@ -26,6 +24,10 @@ class Mess extends Component {
 		this._clearInput();
 	}
 
+	_isCloseToBottom({layoutMeasurement, contentOffset, contentSize}) {
+		return layoutMeasurement.height + contentOffset.y >= contentSize.height - 100;
+	};
+
 	render() {
 		return (
 			<View style={{
@@ -39,18 +41,30 @@ class Mess extends Component {
 						flex: 1,
 					}}
 					keyboardShouldPersistTaps='always'
+					onScroll={(event) => {
+						this.props.setAutoScroll(this._isCloseToBottom(event.nativeEvent))}
+					}
+					scrollEventThrottle={10}
 					onContentSizeChange={(contentWidth, contentHeight) => {
 						this._scrollToBottom = () => this.refs.scroller.scrollTo({y: contentHeight});
-						this._scrollToBottom();
+						if (this.props.autoScroll) {
+							this._scrollToBottom();
+						}
 					}}
 				>
 					<ListView
 						enableEmptySections={true}
 						style={{flex: 1}}
 						dataSource={this.dataSource.cloneWithRows(this.props.messages)}
-						renderRow={(row) => <Message text={row.text} yours={false}/>}
+						renderRow={(row) =>
+							<Message text={row.text}
+									 yours={row.text.length % 2 === 0}
+									 sender={row.sender}
+									 sendDate={new Date(row.sendDate)}
+							/>}
 					/>
 				</ScrollView>
+
 				<View style={{
 					height: 40,
 					flexDirection: 'row',
@@ -91,17 +105,21 @@ const styles = StyleSheet.create({
 function mapStateToProps(state) {
 	return {
 		inputText: state.inputText,
-		messages: state.messages
+		messages: state.messages,
+		autoScroll: state.autoScroll
 	};
 }
 
 function mapDispatchToProps(dispatch) {
 	return {
+		//TODO add server side values here
 		addMessage(text) {
 			dispatch({
 				type: 'addMessage',
 				message: {
 					text,
+					sender: 'Sergiu',
+					sendDate: new Date()
 				}
 			});
 		},
@@ -116,6 +134,12 @@ function mapDispatchToProps(dispatch) {
 				type: 'setMessages',
 				messages
 			});
+		},
+		setAutoScroll(scroll) {
+			dispatch({
+				type: 'setAutoScroll',
+				scroll
+			})
 		}
 	}
 }
