@@ -37,6 +37,7 @@ class Mess extends Component {
 					keyboardShouldPersistTaps='always'
 					enableEmptySections={true}
 					style={{flex: 1}}
+					onEndReached={/*TODO add load more messages functionality*/}
 					dataSource={this.dataSource.cloneWithRows(this.props.messages)}
 					renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
 					renderScrollComponent={props => <InvertibleScrollView {...props} inverted/>}
