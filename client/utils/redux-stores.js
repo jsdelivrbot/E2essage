@@ -13,7 +13,7 @@ export const MessengerStore = createStoreWithActions(
 			AsyncStorage.setItem('@Storage:messages', JSON.stringify([...state.messages, action.message]));
 			return {
 				...state,
-				messages: [...state.messages, action.message],
+				messages: [action.message, ...state.messages],
 			}
 		},
 		setInputText: function (state, action) {

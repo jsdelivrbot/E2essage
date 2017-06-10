@@ -66,8 +66,6 @@ const styles = StyleSheet.create({
 		paddingBottom: 6,
 		paddingTop: 6,
 		backgroundColor: '#eceff1',
-		borderBottomColor: '#37474f',
-		borderBottomWidth: 1,
 	},
 	yourContainer: {
 		alignItems: 'flex-end',

@@ -3,6 +3,7 @@ import connect from "react-redux/es/connect/connect";
 import * as AsyncStorage from "react-native/Libraries/Storage/AsyncStorage";
 import React, {Component} from "react";
 import Message from "./message";
+import InvertibleScrollView from 'react-native-invertible-scroll-view';
 
 class Mess extends Component {
 	constructor(props) {
@@ -24,10 +25,6 @@ class Mess extends Component {
 		this._clearInput();
 	}
 
-	_isCloseToBottom({layoutMeasurement, contentOffset, contentSize}) {
-		return layoutMeasurement.height + contentOffset.y >= contentSize.height - 100;
-	};
-
 	render() {
 		return (
 			<View style={{
@@ -35,36 +32,21 @@ class Mess extends Component {
 				flexDirection: 'column',
 			}}>
 				<Text style={styles.title}>Messages</Text>
-				<ScrollView
+				<ListView
 					ref='scroller'
-					style={{
-						flex: 1,
-					}}
 					keyboardShouldPersistTaps='always'
-					onScroll={(event) => {
-						this.props.setAutoScroll(this._isCloseToBottom(event.nativeEvent))}
-					}
-					scrollEventThrottle={10}
-					onContentSizeChange={(contentWidth, contentHeight) => {
-						this._scrollToBottom = () => this.refs.scroller.scrollTo({y: contentHeight});
-						if (this.props.autoScroll) {
-							this._scrollToBottom();
-						}
-					}}
-				>
-					<ListView
-						enableEmptySections={true}
-						style={{flex: 1}}
-						dataSource={this.dataSource.cloneWithRows(this.props.messages)}
-						renderRow={(row) =>
-							<Message text={row.text}
-									 yours={row.text.length % 2 === 0}
-									 sender={row.sender}
-									 sendDate={new Date(row.sendDate)}
-							/>}
-					/>
-				</ScrollView>
-
+					enableEmptySections={true}
+					style={{flex: 1}}
+					dataSource={this.dataSource.cloneWithRows(this.props.messages)}
+					renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
+					renderScrollComponent={props => <InvertibleScrollView {...props} inverted/>}
+					renderRow={(row) =>
+						<Message text={row.text}
+								 yours={row.text.length % 2 === 0}
+								 sender={row.sender}
+								 sendDate={new Date(row.sendDate)}
+						/>}
+				/>
 				<View style={{
 					height: 40,
 					flexDirection: 'row',
@@ -99,7 +81,12 @@ const styles = StyleSheet.create({
 	},
 	sendButton: {
 		color: '#eceff1',
-	}
+	},
+	separator: {
+		flex: 1,
+		height: StyleSheet.hairlineWidth,
+		backgroundColor: '#8E8E8E',
+	},
 });
 
 function mapStateToProps(state) {
