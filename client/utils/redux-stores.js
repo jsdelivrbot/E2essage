@@ -1,16 +1,17 @@
 import {createStoreWithActions} from "./create-store";
-import * as AsyncStorage from "react-native/Libraries/Storage/AsyncStorage";
+import {MessagesAsyncStorage} from "./async-storage";
 
 
 export const MessengerStore = createStoreWithActions(
 	{
 		inputText: '',
 		messages: [],
-		autoScroll: false,
+		route: 'login'
 	},
 	{
 		addMessage: function (state, action) {
-			AsyncStorage.setItem('@Storage:messages', JSON.stringify([...state.messages, action.message]));
+			const newMessages = [action.message, ...state.messages];
+			MessagesAsyncStorage.setMessages('@Storage:messages', newMessages);
 			return {
 				...state,
 				messages: [action.message, ...state.messages],
@@ -28,10 +29,10 @@ export const MessengerStore = createStoreWithActions(
 				messages: action.messages
 			}
 		},
-		setAutoScroll: function (state, action) {
+		setRoute: function (state, action) {
 			return {
 				...state,
-				currentScroll: action.scroll,
+				route: action.route
 			}
 		}
 	}

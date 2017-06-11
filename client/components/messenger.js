@@ -1,6 +1,5 @@
-import {Button, ListView, ScrollView, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View} from "react-native";
+import {Button, ListView, StyleSheet, Text, TextInput, View} from "react-native";
 import connect from "react-redux/es/connect/connect";
-import * as AsyncStorage from "react-native/Libraries/Storage/AsyncStorage";
 import React, {Component} from "react";
 import Message from "./message";
 import InvertibleScrollView from 'react-native-invertible-scroll-view';
@@ -8,10 +7,6 @@ import InvertibleScrollView from 'react-native-invertible-scroll-view';
 class Mess extends Component {
 	constructor(props) {
 		super(props);
-		const self = this;
-		AsyncStorage.getItem('@Storage:messages').then(function (messages) {
-			self.props.setMessages(JSON.parse(messages) || []);
-		});
 		this.dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.text !== r2.text});
 	};
 
@@ -37,7 +32,6 @@ class Mess extends Component {
 					keyboardShouldPersistTaps='always'
 					enableEmptySections={true}
 					style={{flex: 1}}
-					onEndReached={/*TODO add load more messages functionality*/}
 					dataSource={this.dataSource.cloneWithRows(this.props.messages)}
 					renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
 					renderScrollComponent={props => <InvertibleScrollView {...props} inverted/>}
