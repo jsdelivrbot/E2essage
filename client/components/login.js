@@ -20,7 +20,7 @@ export class Login extends Component {
 	authenticate() {
 		if (this.state.user === 'uifi95' && this.state.password === '1234') {
 			this.setState({...this.state, errorMessage: ''});
-			ReduxRouter.go('messages');
+			ReduxRouter.go('chatThreads');
 		} else {
 			this.setState({...this.state, errorMessage: 'Invalid Login'})
 		}

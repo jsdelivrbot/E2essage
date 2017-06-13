@@ -6,28 +6,23 @@
 import React, {Component} from "react";
 import {View} from "react-native";
 import {Messenger} from "./messenger";
-import {MessagesAsyncStorage} from "../utils/async-storage";
-import {MessengerStore} from "../utils/redux-stores";
 import {Login} from "./login";
 import connect from "react-redux/es/connect/connect";
+import {dispatchToProps, stateToProps} from "../utils/prop-mapping";
+import {ChatThreads} from "./chat-threads";
 
 class RouterComponent extends Component {
 	constructor(props){
 		super(props);
 		this._routes = {
 			login: (<Login/>),
+			chatThreads: (<ChatThreads/>),
 			messages: (<Messenger/>),
 		};
 	}
 
 	render() {
 		const routes = this._routes;
-		MessagesAsyncStorage.getMessages('@Storage:messages').then((messages) => {
-			MessengerStore.dispatch({
-				type: 'setMessages',
-				messages: JSON.parse(messages) || []
-			});
-		});
 		return (
 			<View style={{
 				flex: 1
@@ -38,22 +33,4 @@ class RouterComponent extends Component {
 	}
 }
 
-function mapStateToProps(state) {
-	return {
-		route: state.route
-	};
-}
-
-function mapDispatchToProps(dispatch) {
-	return {
-		//TODO add server side values here
-		setRoute(route) {
-			dispatch({
-				type: 'setRoute',
-				route
-			});
-		}
-	}
-}
-
-export const Router = connect(mapStateToProps, mapDispatchToProps)(RouterComponent);
+export const Router = connect(stateToProps.router, dispatchToProps.router)(RouterComponent);

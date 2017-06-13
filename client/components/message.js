@@ -3,7 +3,7 @@
  */
 import React, {Component} from "react";
 import {Text, StyleSheet, View, TouchableHighlight} from "react-native";
-import dateFormat from 'dateformat';
+import {formatMessageDate} from "../utils/date-utils";
 
 
 export default class Message extends Component {
@@ -15,23 +15,8 @@ export default class Message extends Component {
 		}
 	}
 
-	_formatMessageDate(date, now) {
-		let format;
-		if (date.getYear() !== now.getYear()) {
-			format = 'dd/mm/yyyy HH:MM'
-		} else if (date.getMonth() !== now.getMonth() || date.getDate() !== now.getDate()) {
-			format = 'dd/mm HH:MM'
-		} else if (date.getHours() !== now.getHours()) {
-			format = 'HH:MM'
-		} else if (date.getMinutes() !== now.getMinutes()) {
-			return `${now.getMinutes() - date.getMinutes()} minutes ago`
-		} else {
-			return 'now';
-		}
-		return dateFormat(date, format);
-	}
 	_toggleDate() {
-		const dateString = this.state.showDate ? null : this._formatMessageDate(this.props.sendDate, new Date());
+		const dateString = this.state.showDate ? null : formatMessageDate(this.props.sendDate, new Date());
 		this.setState({ showDate: !this.state.showDate, dateString});
 	}
 

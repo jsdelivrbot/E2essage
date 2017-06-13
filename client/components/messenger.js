@@ -3,12 +3,35 @@ import connect from "react-redux/es/connect/connect";
 import React, {Component} from "react";
 import Message from "./message";
 import InvertibleScrollView from 'react-native-invertible-scroll-view';
+import {dispatchToProps, stateToProps} from "../utils/prop-mapping";
+import {MessagesAsyncStorage} from "../utils/async-storage";
+import {MessengerStore} from "../utils/redux-stores";
+import {ReduxRouter} from "../utils/router";
+import * as BackHandler from "react-native/Libraries/Utilities/BackHandler.android";
+
 
 class Mess extends Component {
 	constructor(props) {
 		super(props);
+		MessagesAsyncStorage.getMessages(`@Storage:messages#${this.props.currentChatId}`).then((messages) => {
+			MessengerStore.dispatch({
+				type: 'setMessages',
+				messages: JSON.parse(messages) || []
+			});
+		});
 		this.dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.text !== r2.text});
 	};
+
+	componentDidMount() {
+		BackHandler.addEventListener('backPress', () => {
+			ReduxRouter.go('chatThreads');
+			return true;
+		});
+	}
+
+	componentWillUnmount() {
+		BackHandler.removeEventListener('backPress');
+	}
 
 	_clearInput() {
 		this.refs.messageInput.setNativeProps({text: ''});
@@ -16,7 +39,7 @@ class Mess extends Component {
 	}
 
 	_addMessage(text) {
-		this.props.addMessage(text);
+		this.props.addMessage(text, this.props.currentChatId);
 		this._clearInput();
 	}
 
@@ -84,46 +107,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-function mapStateToProps(state) {
-	return {
-		inputText: state.inputText,
-		messages: state.messages,
-		autoScroll: state.autoScroll
-	};
-}
-
-function mapDispatchToProps(dispatch) {
-	return {
-		//TODO add server side values here
-		addMessage(text) {
-			dispatch({
-				type: 'addMessage',
-				message: {
-					text,
-					sender: 'Sergiu',
-					sendDate: new Date()
-				}
-			});
-		},
-		setInputText(text) {
-			dispatch({
-				type: 'setInputText',
-				text
-			});
-		},
-		setMessages(messages) {
-			dispatch({
-				type: 'setMessages',
-				messages
-			});
-		},
-		setAutoScroll(scroll) {
-			dispatch({
-				type: 'setAutoScroll',
-				scroll
-			})
-		}
-	}
-}
-
-export const Messenger = connect(mapStateToProps, mapDispatchToProps)(Mess);
+export const Messenger = connect(stateToProps.messenger, dispatchToProps.messenger)(Mess);
