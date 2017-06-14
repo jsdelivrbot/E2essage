@@ -44,7 +44,10 @@ class Mess extends Component {
 	}
 
 	_addMessage(text) {
-		this.props.addMessage(text, this.props.currentChatId);
+		chatSocket.sendMessage(createMessage('addMessage', {
+			content: text,
+			username: 'Laura'
+		}));
 		this._clearInput();
 	}
 

@@ -21,7 +21,7 @@ class ChatSocketServer {
 				const type = message.type;
 				if (self.messageHandlers.hasOwnProperty(type)) {
 					delete message.type;
-					self.messageHandlers[type](ws, message);
+					self.messageHandlers[type](ws, message, self);
 				}
 			});
 		});
@@ -32,10 +32,10 @@ class ChatSocketServer {
 	};
 
 	broadcast(data) {
-		let i = 0;
 		this.wss.clients.forEach((client) => {
-			i++;
-			client.send("data");
+			if (client.readyState === ws.OPEN) {
+				client.send(data);
+			}
 		})
 	}
 }

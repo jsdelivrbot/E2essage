@@ -17,7 +17,7 @@ export class ChatSocketClient {
 			const type = message.type;
 			if (self.messageHandlers.hasOwnProperty(type)) {
 				delete message.type;
-				self.messageHandlers[type](self.ws, message);
+				self.messageHandlers[type](self.ws, message.data);
 			}
 		};
 	}

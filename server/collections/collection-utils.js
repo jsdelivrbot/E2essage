@@ -67,7 +67,8 @@ class MongoCollection {
 				promise = collection.insertOne(data);
 			}
 			promise.then(function (result) {
-				callback(result.insertedId);
+				data._id = result.insertedId;
+				callback(data);
 			}, function (error) {
 				callback(error);
 			});

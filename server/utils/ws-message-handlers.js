@@ -23,14 +23,13 @@ const messageHandlers = {
 			if (error){
 				ws.send(createMessage('error', error));
 			} else {
-				console.log(array);
 				ws.send(createMessage('messages', array));
 			}
 		});
 	},
-	addMessage: function (ws, message) {
-		Messages.insert(message, (status) => {
-			ws.send(JSON.stringify(status));
+	addMessage: function (ws, message, server) {
+		Messages.insert(message, (message) => {
+			server.broadcast(createMessage('receiveMessage', message));
 		});
 	},
 	newChat: function (ws, message) {
