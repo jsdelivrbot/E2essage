@@ -8,19 +8,24 @@ import {MessagesAsyncStorage} from "../utils/async-storage";
 import {MessengerStore} from "../utils/redux-stores";
 import {ReduxRouter} from "../utils/router";
 import * as BackHandler from "react-native/Libraries/Utilities/BackHandler.android";
+import {chatSocket, createMessage} from "../communication/websocket-client";
 
 
 class Mess extends Component {
 	constructor(props) {
 		super(props);
-		MessagesAsyncStorage.getMessages(`@Storage:messages#${this.props.currentChatId}`).then((messages) => {
-			MessengerStore.dispatch({
-				type: 'setMessages',
-				messages: JSON.parse(messages) || []
-			});
-		});
+		// MessagesAsyncStorage.getMessages(`@Storage:messages#${this.props.currentChatId}`).then((messages) => {
+		// 	MessengerStore.dispatch({
+		// 		type: 'setMessages',
+		// 		messages: JSON.parse(messages) || []
+		// 	});
+		// });
 		this.dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.text !== r2.text});
 	};
+
+	componentWillMount(){
+		chatSocket.sendMessage(createMessage('getMessages', {query: {}}));
+	}
 
 	componentDidMount() {
 		BackHandler.addEventListener('backPress', () => {
@@ -60,7 +65,7 @@ class Mess extends Component {
 					renderScrollComponent={props => <InvertibleScrollView {...props} inverted/>}
 					renderRow={(row) =>
 						<Message text={row.text}
-								 yours={row.text.length % 2 === 0}
+								 yours={row.yours}
 								 sender={row.sender}
 								 sendDate={new Date(row.sendDate)}
 						/>}

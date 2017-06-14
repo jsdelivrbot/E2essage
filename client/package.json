@@ -15,7 +15,8 @@
 		"react-native-invertible-scroll-view": "^1.0.0",
 		"dateformat": "^2.0.0",
 		"react-native-action-button": "^2.6.10",
-		"react-native-vector-icons": "^4.2.0"
+		"react-native-vector-icons": "^4.2.0",
+		"ws": "^2.2.1"
 	},
 	"devDependencies": {
 		"babel-jest": "20.0.3",

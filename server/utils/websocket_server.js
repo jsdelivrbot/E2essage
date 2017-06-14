@@ -16,6 +16,7 @@ class ChatSocketServer {
 		self.wss = new ws.Server({ server: this.server });
 		self.wss.on('connection', function (ws) {
 			ws.on("message", function (message) {
+				console.log(`parsing message: ${message}`);
 				message = JSON.parse(message);
 				const type = message.type;
 				if (self.messageHandlers.hasOwnProperty(type)) {

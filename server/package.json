@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "mongo": "mongod --dbpath=./.db --port 27017"
+    "mongo": "mongod --dbpath=./.db --port 27017 &"
   },
   "dependencies": {
     "body-parser": "~1.16.0",

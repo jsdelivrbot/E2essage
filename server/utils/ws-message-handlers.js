@@ -10,6 +10,10 @@ const Messages = collections.Messages;
 const Users = collections.Users;
 const Chats = collections.Chats;
 
+function createMessage(type, data) {
+	return JSON.stringify({type, data});
+}
+
 const messageHandlers = {
 	login: function (ws, message) {
 		ws.send(login(message.username, message.password))
@@ -17,9 +21,10 @@ const messageHandlers = {
 	getMessages: function (ws, message) {
 		Messages.find(message.query, (array, error) => {
 			if (error){
-				ws.send(error);
+				ws.send(createMessage('error', error));
 			} else {
-				ws.send(JSON.stringify(array));
+				console.log(array);
+				ws.send(createMessage('messages', array));
 			}
 		});
 	},

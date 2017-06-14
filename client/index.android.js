@@ -11,6 +11,10 @@ import Provider from "react-redux/es/components/Provider";
 import {MessengerStore} from "./utils/redux-stores";
 
 export default class E2essage extends Component {
+	constructor(props) {
+		super(props);
+	}
+
 	render() {
 		return (
 			<Provider store={MessengerStore}>
