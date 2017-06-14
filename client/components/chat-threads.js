@@ -9,7 +9,6 @@ import {ActionMenu} from "./action-menu";
 import {actioMenuButtons as actionMenuButtons} from "../utils/action-menu-buttons";
 import {ChatThread} from "./chat-thread";
 import {ReduxRouter} from "../utils/router";
-import ActionButton from "react-native-action-button";
 
 
 class Threads extends Component {
@@ -34,27 +33,60 @@ class Threads extends Component {
 					visible={this.props.modalVisible}
 					onRequestClose={() => {alert("Modal has been closed.")}}
 				>
-					<View style={{margin: 22, backgroundColor: 'white', flex: 1}}>
+					<View style={{
+						alignItems: 'center',
+						justifyContent: 'center',
+						margin: 25,
+						marginTop: 'auto',
+						marginBottom: 'auto',
+						backgroundColor: 'white',
+						elevation: 10
+					}}>
+						<Text
+							style={{
+								fontSize: 20,
+								color: '#607d8b',
+								margin: 15,
+							}}
+						>Start a new conversation</Text>
 						<TextInput
 							ref="messageInput"
-							style={{height: 40, flex: 5, fontSize: 18}}
+							style={{
+								height: 40,
+								fontSize: 18,
+								marginRight: 20,
+								marginLeft: 20,
+								textAlign: 'center',
+								alignSelf: 'stretch'
+							}}
 							placeholder="Contact"
 							value={this.state.newChatText}
 							onChangeText={(text) => this.setState({newChatText: text})}
 						/>
-						<View style={{flexDirection: 'row'}}>
-							<Button title="OK" onPress={() => {
-								if (this.state.newChatText.length) {
-									this.props.addChatThread({
-										text: this.state.newChatText,
-										//TODO add server side guid generation
-										chatId: this.state.newChatText
-									});
-									this.setState({newChatText: ''});
-								}
-								this.props.toggleModal()
-							}}/>
-							<Button title="Cancel" onPress={() => this.props.toggleModal()}/>
+						<View style={{
+							flexDirection: 'row',
+							justifyContent: 'space-between'
+						}}>
+							<View
+								style={{margin: 10}}
+							>
+								<Button title="OK" onPress={() => {
+									if (this.state.newChatText.length) {
+										this.props.addChatThread({
+											text: this.state.newChatText,
+											//TODO add server side guid generation
+											chatId: this.state.newChatText
+										});
+										this.setState({newChatText: ''});
+									}
+									this.props.toggleModal()
+								}}/>
+							</View>
+							<View
+								style={{margin: 10}}
+							>
+								<Button title="Cancel" onPress={() => this.props.toggleModal()}/>
+							</View>
 						</View>
 					</View>
 				</Modal>
