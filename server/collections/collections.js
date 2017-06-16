@@ -5,4 +5,5 @@ const MongoCollection = require("./collection-utils").MongoCollection;
 
 module.exports.Messages = new MongoCollection("messages", ["userId", "username", "content", "chatId"]);
 module.exports.Users = new MongoCollection("users", ["username", "password", "phone"]);
+module.exports.Sessions = new MongoCollection("sessions", ["username", "sessionId"]);
 module.exports.Chats = new MongoCollection("chats", ["users"]);

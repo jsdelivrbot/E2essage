@@ -23,6 +23,9 @@ class MongoCollection {
 		const self = this;
 		self.collectionName = collectionName;
 		self.allowedFields = allowedFields;
+		connect.then(function (db) {
+			db.collection(self.collectionName);
+		});
 	}
 	find(query, callback) {
 		const self = this;
@@ -67,8 +70,7 @@ class MongoCollection {
 				promise = collection.insertOne(data);
 			}
 			promise.then(function (result) {
-				data._id = result.insertedId;
-				callback(data);
+				callback(_.extend({_id: result.insertedId}, data));
 			}, function (error) {
 				callback(error);
 			});

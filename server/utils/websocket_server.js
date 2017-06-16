@@ -2,13 +2,20 @@
  * Created by sergiuu on 20.03.2017.
  */
 const ws = require('ws');
+const collections = require("../collections/collections");
+const Sessions = collections.Sessions;
+const _ = require('underscore');
+
+const permittedHandlers = ['login'];
+
 
 class ChatSocketServer {
 	constructor(server, messageHandlers) {
 		const self = this;
 		self.clients = [];
 		self.messageHandlers = messageHandlers || {};
-		self.server = server
+		self.server = server;
+		self.connections = {};
 	}
 
 	start() {
@@ -21,7 +28,19 @@ class ChatSocketServer {
 				const type = message.type;
 				if (self.messageHandlers.hasOwnProperty(type)) {
 					delete message.type;
-					self.messageHandlers[type](ws, message, self);
+					Sessions.findOne({sessionId: message.sessionId}, function (result) {
+						if (!result && permittedHandlers.indexOf(type) === -1) {
+							ws.send(JSON.stringify({
+								type: 'error',
+								data: {
+									error: 'Invalid Session'
+								}
+							}));
+							return;
+						}
+						delete message.sessionId;
+						self.messageHandlers[type](ws, message, self);
+					});
 				}
 			});
 		});
@@ -31,9 +50,14 @@ class ChatSocketServer {
 		this.messageHandlers[type] = handler;
 	};
 
-	broadcast(data) {
+	checkUserIds(client, userIds) {
+		if (!userIds || !userIds.length) { return true }
+		return client._userId && userIds.indexOf(client._userId) > -1;
+	}
+
+	broadcast(data, userIds) {
 		this.wss.clients.forEach((client) => {
-			if (client.readyState === ws.OPEN) {
+			if (client.readyState === ws.OPEN && this.checkUserIds(client, userIds)) {
 				client.send(data);
 			}
 		})
