@@ -3,8 +3,15 @@
  */
 
 export const stateToProps = {
+	login(state) {
+		return {
+			errorMessage: state.errorMessage
+		};
+	},
 	messenger(state) {
 		return {
+			sessionId: state.sessionId,
+			username: state.username,
 			inputText: state.inputText,
 			messages: state.messages,
 			currentChatId: state.currentChatId
@@ -17,6 +24,8 @@ export const stateToProps = {
 	},
 	chatThreads(state) {
 		return {
+			sessionId: state.sessionId,
+			username: state.username,
 			chatThreads: state.chatThreads,
 			modalVisible: state.modalVisible,
 		}

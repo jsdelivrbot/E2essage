@@ -9,6 +9,20 @@ const _ = require('underscore');
 const permittedHandlers = ['login'];
 
 
+function errorType(type) {
+	switch (type) {
+		case 'authenticate':
+			return 'authResponse';
+		case 'addMessage':
+			return 'receiveMessage';
+		case 'getMessages':
+			return 'messages';
+		default:
+			return type;
+	}
+}
+
+
 class ChatSocketServer {
 	constructor(server, messageHandlers) {
 		const self = this;
@@ -31,7 +45,7 @@ class ChatSocketServer {
 					Sessions.findOne({sessionId: message.sessionId}, function (result) {
 						if (!result && permittedHandlers.indexOf(type) === -1) {
 							ws.send(JSON.stringify({
-								type: 'error',
+								type: errorType(type),
 								data: {
 									error: 'Invalid Session'
 								}

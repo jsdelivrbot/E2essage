@@ -24,7 +24,7 @@ class Mess extends Component {
 	};
 
 	componentWillMount(){
-		chatSocket.sendMessage(createMessage('getMessages', {query: {}}));
+		chatSocket.sendMessage(createMessage('getMessages', {query: {}}, this.props.sessionId));
 	}
 
 	componentDidMount() {
@@ -46,8 +46,8 @@ class Mess extends Component {
 	_addMessage(text) {
 		chatSocket.sendMessage(createMessage('addMessage', {
 			content: text,
-			username: 'Laura'
-		}));
+			username: this.props.username
+		}, this.props.sessionId));
 		this._clearInput();
 	}
 
@@ -68,7 +68,7 @@ class Mess extends Component {
 					renderScrollComponent={props => <InvertibleScrollView {...props} inverted/>}
 					renderRow={(row) =>
 						<Message text={row.text}
-								 yours={row.yours}
+								 yours={row.sender === this.props.username}
 								 sender={row.sender}
 								 sendDate={new Date(row.sendDate)}
 						/>}

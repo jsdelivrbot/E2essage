@@ -3,11 +3,11 @@
  */
 import {messageHandlers} from "../communication/message-handlers";
 
-export function createMessage(type, data) {
-	return JSON.stringify({type, ...data});
+export function createMessage(type, data, sessionId) {
+	return JSON.stringify({type, sessionId, ...data});
 }
 
-export class ChatSocketClient {
+class ChatSocketClient {
 	constructor(address, messageHandlers) {
 		const self = this;
 		self.ws = new WebSocket(address);

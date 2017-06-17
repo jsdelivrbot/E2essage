@@ -3,27 +3,26 @@
  */
 
 import React, {Component} from "react";
-import {ReduxRouter} from "../utils/router";
+import connect from "react-redux/es/connect/connect";
 import {Button, Text, TextInput, View} from "react-native";
+import {stateToProps} from "../utils/prop-mapping";
+import {chatSocket, createMessage} from "../communication/websocket-client";
 
-export class Login extends Component {
+class LoginComponent extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			user: '',
 			password: '',
-			errorMessage: ''
 		}
 	}
 
 	//TODO add server side authentication
 	authenticate() {
-		if (this.state.user === 'uifi95' && this.state.password === '1234') {
-			this.setState({...this.state, errorMessage: ''});
-			ReduxRouter.go('chatThreads');
-		} else {
-			this.setState({...this.state, errorMessage: 'Invalid Login'})
-		}
+		chatSocket.sendMessage(createMessage('login', {
+			username: this.state.user,
+			password: this.state.password
+		}));
 	}
 
 	render(){
@@ -37,7 +36,7 @@ export class Login extends Component {
 					textAlign: 'center',
 					fontSize: 18,
 					color: 'red'
-				}}>{this.state.errorMessage}</Text>
+				}}>{this.props.errorMessage}</Text>
 				<TextInput
 					ref="user"
 					style={{textAlign: 'center', fontSize: 18}}
@@ -65,3 +64,5 @@ export class Login extends Component {
 		);
 	}
 }
+
+export const Login = connect(stateToProps.login)(LoginComponent);

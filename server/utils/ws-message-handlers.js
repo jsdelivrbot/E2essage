@@ -23,7 +23,7 @@ const messageHandlers = {
 		const password = message.password;
 
 		Users.findOne({username, password}, function (result, error) {
-			if (error) {
+			if (error || !result) {
 				ws.send(createMessage('loginResponse', response));
 				return;
 			}
@@ -35,10 +35,25 @@ const messageHandlers = {
 			Sessions.insert(response, () => ws.send(createMessage('loginResponse', _.omit(response, (value, key) => key === '_id'))));
 		});
 	},
+	authenticate: function (ws, message) {
+		const username = message.username;
+		Users.findOne({username}, function (result, error) {
+			if (error || !result) {
+				ws.send(createMessage('authResponse', {
+					error: 'Invalid credentials'
+				}));
+				return;
+			}
+			ws._userId = result._id;
+			ws.send(createMessage('authResponse', {
+				authentication: true
+			}));
+		});
+	},
 	getMessages: function (ws, message) {
 		Messages.find(message.query, (array, error) => {
 			if (error){
-				ws.send(createMessage('error', error));
+				ws.send(createMessage('messages', error));
 			} else {
 				ws.send(createMessage('messages', array));
 			}
