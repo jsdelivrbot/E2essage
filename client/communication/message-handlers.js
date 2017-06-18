@@ -49,7 +49,7 @@ export const messageHandlers = {
 			return {
 				text: message.content,
 				sender: message.username,
-				sendDate: new Date(),
+				sendDate: new Date(message.sendDate),
 			}
 		});
 		MessengerStore.dispatch({
@@ -61,7 +61,7 @@ export const messageHandlers = {
 		const messageToAdd = {
 			text: message.content,
 			sender: message.username,
-			sendDate: new Date(),
+			sendDate: new Date(message.sendDate),
 		};
 		MessengerStore.dispatch({
 			type: 'addMessage',

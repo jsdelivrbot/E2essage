@@ -24,7 +24,7 @@ class Mess extends Component {
 	};
 
 	componentWillMount(){
-		chatSocket.sendMessage(createMessage('getMessages', {query: {}}, this.props.sessionId));
+		chatSocket.sendMessage(createMessage('getMessages', {query: { chatId: this.props.currentChatId}}, this.props.sessionId));
 	}
 
 	componentDidMount() {
@@ -46,7 +46,9 @@ class Mess extends Component {
 	_addMessage(text) {
 		chatSocket.sendMessage(createMessage('addMessage', {
 			content: text,
-			username: this.props.username
+			username: this.props.username,
+			chatId: this.props.currentChatId,
+			sendDate: new Date().toISOString()
 		}, this.props.sessionId));
 		this._clearInput();
 	}
