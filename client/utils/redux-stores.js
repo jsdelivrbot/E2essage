@@ -9,16 +9,7 @@ export const MessengerStore = createStoreWithActions(
 		route: '',
 		errorMessage: '',
 		modalVisible: false,
-		chatThreads: [
-			{
-				chatId: 'one',
-				text: 'Chira'
-			},
-			{
-				chatId: 'two',
-				text: 'Laura'
-			},
-		],
+		chatThreads: [],
 		currentChatId: '',
 		sessionId: '',
 		username: '',

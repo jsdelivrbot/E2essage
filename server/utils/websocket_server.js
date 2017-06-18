@@ -17,6 +17,10 @@ function errorType(type) {
 			return 'receiveMessage';
 		case 'getMessages':
 			return 'messages';
+		case 'newChat':
+			return 'chatCreated';
+		case 'getChats':
+			return 'receiveChats';
 		default:
 			return type;
 	}

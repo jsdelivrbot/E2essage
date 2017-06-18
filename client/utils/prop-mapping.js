@@ -24,6 +24,7 @@ export const stateToProps = {
 	},
 	chatThreads(state) {
 		return {
+			errorMessage: state.errorMessage,
 			sessionId: state.sessionId,
 			username: state.username,
 			chatThreads: state.chatThreads,
@@ -89,6 +90,12 @@ export const dispatchToProps = {
 			toggleModal() {
 				dispatch({
 					type: 'toggleModal'
+				})
+			},
+			setErrorMessage(errorMessage) {
+				dispatch({
+					type: 'setErrorMessage',
+					errorMessage
 				})
 			},
 			setCurrentChatId(chatId) {

@@ -28,6 +28,7 @@ const messageHandlers = {
 				return;
 			}
 			ws._userId = result._id;
+			ws._username = username;
 			response = {
 				username,
 				sessionId: ObjectId().toString(),
@@ -45,6 +46,7 @@ const messageHandlers = {
 				return;
 			}
 			ws._userId = result._id;
+			ws._username = username;
 			ws.send(createMessage('authResponse', {
 				authentication: true
 			}));
@@ -65,13 +67,37 @@ const messageHandlers = {
 		});
 	},
 	newChat: function (ws, message) {
-		Chats.insert(message, (status) => {
-			ws.send(JSON.stringify(status));
+		Users.findOne({username: message.username}, function (user, error) {
+			if (error) {
+				ws.send(createMessage('chatCreated', {error}));
+				return;
+			}
+			if (!user) {
+				ws.send(createMessage('chatCreated', {error: 'That user does not exist.'}));
+				return;
+			}
+			Chats.insert({user1: ws._username, user2: user.username}, (chat) => {
+				ws.send(createMessage('chatCreated', {
+					chatId: chat._id,
+					contact: user.username
+				}));
+			});
 		});
+
 	},
 	getChats: function (ws, message) {
-		Chats.find(message.query, (chat, error) => {
-			ws.send(JSON.stringify(chat));
+		Chats.find({$or: [{ user1: ws._username}, { user2: ws._username}]}, (chats, error) => {
+			if (error) {
+				ws.send(createMessage('receiveChats', {error}));
+				return;
+			}
+			const mappedChats = chats.map(function (chat) {
+				return {
+					chatId: chat._id,
+					contact: chat.user1 === ws._username ? chat.user2: chat.user1
+				}
+			});
+			ws.send(createMessage('receiveChats', mappedChats));
 		});
 	}
 };

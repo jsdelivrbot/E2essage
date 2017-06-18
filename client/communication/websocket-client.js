@@ -2,6 +2,7 @@
  * Created by sergiuu on 14.06.2017.
  */
 import {messageHandlers} from "../communication/message-handlers";
+import {sessionValid} from "./message-handlers";
 
 export function createMessage(type, data, sessionId) {
 	return JSON.stringify({type, sessionId, ...data});
@@ -15,7 +16,8 @@ class ChatSocketClient {
 		self.ws.onmessage = function (message) {
 			message = JSON.parse(message.data);
 			const type = message.type;
-			if (self.messageHandlers.hasOwnProperty(type)) {
+			if (self.messageHandlers.hasOwnProperty(type) && sessionValid(message.data)) {
+				delete message.error;
 				delete message.type;
 				self.messageHandlers[type](self.ws, message.data);
 			}

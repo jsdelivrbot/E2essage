@@ -18,6 +18,20 @@ function setSession(message) {
 	});
 }
 
+export function sessionValid(message) {
+	if (message.error && message.error === 'Invalid Session') {
+		console.log('INVALID SESSION');
+		setSession({});
+		ReduxRouter.go('login');
+		MessengerStore.dispatch({
+			type: 'setErrorMessage',
+			errorMessage: message.error
+		});
+		return false;
+	}
+	return true;
+}
+
 function moveSessionToHomePage() {
 	SessionAsyncStorage.getSession().then(function (session) {
 		session = JSON.parse(session);
@@ -66,15 +80,28 @@ export const messageHandlers = {
 		ReduxRouter.go('chatThreads');
 	},
 	authResponse: function (ws, message) {
+		moveSessionToHomePage();
+	},
+	receiveChats: function (ws, message) {
+		MessengerStore.dispatch({
+			type: 'setChatThreads',
+			chatThreads: message
+		});
+	},
+	chatCreated: function (ws, message) {
 		if (message.error) {
-			setSession({});
-			ReduxRouter.go('login');
 			MessengerStore.dispatch({
 				type: 'setErrorMessage',
 				errorMessage: message.error
 			});
 			return;
 		}
-		moveSessionToHomePage();
+		MessengerStore.dispatch({
+			type: 'addChatThread',
+			chatThread: message
+		});
+		MessengerStore.dispatch({
+			type: 'toggleModal',
+		});
 	}
 };
