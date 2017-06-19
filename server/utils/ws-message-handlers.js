@@ -45,6 +45,8 @@ const messageHandlers = {
 				return;
 			}
 			if (result) {
+				ws._userId = undefined;
+				ws._username = undefined;
 				ws.send(createMessage('logoutResponse', {
 					status: `success`
 				}));
