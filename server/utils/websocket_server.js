@@ -6,7 +6,7 @@ const collections = require("../collections/collections");
 const Sessions = collections.Sessions;
 const _ = require('underscore');
 
-const permittedHandlers = ['login'];
+const permittedHandlers = ['login', 'register'];
 
 
 function errorType(type) {

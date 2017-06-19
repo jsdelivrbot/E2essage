@@ -44,7 +44,7 @@ function moveSessionToHomePage() {
 }
 
 export const messageHandlers = {
-	messages: function (ws, message) {
+	messages(ws, message) {
 		const messagesToSet = message.map(function (message) {
 			return {
 				text: message.content,
@@ -57,7 +57,7 @@ export const messageHandlers = {
 			messages: messagesToSet.reverse()
 		})
 	},
-	receiveMessage: function (ws, message) {
+	receiveMessage(ws, message) {
 		const messageToAdd = {
 			text: message.content,
 			sender: message.username,
@@ -68,7 +68,7 @@ export const messageHandlers = {
 			message: messageToAdd
 		});
 	},
-	loginResponse: function (ws, message) {
+	loginResponse(ws, message) {
 		if (message.error) {
 			MessengerStore.dispatch({
 				type: 'setErrorMessage',
@@ -79,16 +79,32 @@ export const messageHandlers = {
 		setSession(message);
 		ReduxRouter.go('chatThreads');
 	},
-	authResponse: function (ws, message) {
+	registerResponse(ws, message) {
+		if (message.error) {
+			MessengerStore.dispatch({
+				type: 'setErrorMessage',
+				errorMessage: message.error
+			});
+			return;
+		}
+		if (message.status === 'success') {
+			MessengerStore.dispatch({
+				type: 'setErrorMessage',
+				errorMessage: ''
+			});
+			ReduxRouter.go('login');
+		}
+	},
+	authResponse(ws, message) {
 		moveSessionToHomePage();
 	},
-	receiveChats: function (ws, message) {
+	receiveChats(ws, message) {
 		MessengerStore.dispatch({
 			type: 'setChatThreads',
 			chatThreads: message
 		});
 	},
-	chatCreated: function (ws, message) {
+	chatCreated(ws, message) {
 		if (message.error) {
 			MessengerStore.dispatch({
 				type: 'setErrorMessage',

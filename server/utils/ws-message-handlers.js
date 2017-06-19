@@ -36,7 +36,36 @@ const messageHandlers = {
 			Sessions.insert(response, () => ws.send(createMessage('loginResponse', _.omit(response, (value, key) => key === '_id'))));
 		});
 	},
-	authenticate: function (ws, message) {
+	register(ws, message) {
+		const username = message.username;
+		const password = message.password;
+		Users.findOne({ username: message.username}, function (result, error) {
+			if (error) {
+				ws.send(createMessage('registerResponse', {
+					error: `Internal Server Error: ${error}`
+				}));
+				return;
+			}
+			if (result) {
+				ws.send(createMessage('registerResponse', {
+					error: `User already exists`
+				}));
+				return;
+			}
+			Users.insert({ username, password }, function (result) {
+				if (!result) {
+					ws.send(createMessage('registerResponse', {
+						error: `Couldn't create account, try again`
+					}));
+					return
+				}
+				ws.send(createMessage('registerResponse', {
+					status: 'success'
+				}));
+			})
+		})
+	},
+	authenticate(ws, message) {
 		const username = message.username;
 		Users.findOne({username}, function (result, error) {
 			if (error || !result) {
@@ -52,7 +81,7 @@ const messageHandlers = {
 			}));
 		});
 	},
-	getMessages: function (ws, message) {
+	getMessages(ws, message) {
 		Messages.find(message.query, (array, error) => {
 			if (error){
 				ws.send(createMessage('messages', error));
@@ -61,12 +90,12 @@ const messageHandlers = {
 			}
 		});
 	},
-	addMessage: function (ws, message, server) {
+	addMessage(ws, message, server) {
 		Messages.insert(message, (message) => {
 			server.broadcast(createMessage('receiveMessage', message), []);
 		});
 	},
-	newChat: function (ws, message) {
+	newChat(ws, message) {
 		Users.findOne({username: message.username}, function (user, error) {
 			if (error) {
 				ws.send(createMessage('chatCreated', {error}));
@@ -85,7 +114,7 @@ const messageHandlers = {
 		});
 
 	},
-	getChats: function (ws, message) {
+	getChats(ws, message) {
 		Chats.find({$or: [{ user1: ws._username}, { user2: ws._username}]}, (chats, error) => {
 			if (error) {
 				ws.send(createMessage('receiveChats', {error}));

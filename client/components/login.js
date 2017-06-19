@@ -7,6 +7,7 @@ import connect from "react-redux/es/connect/connect";
 import {Button, Text, TextInput, View} from "react-native";
 import {stateToProps} from "../utils/prop-mapping";
 import {chatSocket, createMessage} from "../communication/websocket-client";
+import {ReduxRouter} from "../utils/router";
 
 class LoginComponent extends Component {
 	constructor(props) {
@@ -31,6 +32,8 @@ class LoginComponent extends Component {
 				flex: 1,
 				flexDirection: 'column',
 				justifyContent: 'center',
+				paddingLeft: 40,
+				paddingRight: 40,
 			}}>
 				<Text style={{
 					textAlign: 'center',
@@ -60,6 +63,14 @@ class LoginComponent extends Component {
 					onSubmitEditing={this.authenticate.bind(this)}
 				/>
 				<Button ref="login" onPress={this.authenticate.bind(this)} title="LOGIN"/>
+				<Text style={{
+					marginTop: 15,
+					textAlign: 'center',
+					fontSize: 16,
+					color: 'gray'
+				}}
+					  onPress={() => ReduxRouter.go('register')}
+				>Don't have an account? Register</Text>
 			</View>
 		);
 	}

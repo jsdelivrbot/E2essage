@@ -8,6 +8,11 @@ export const stateToProps = {
 			errorMessage: state.errorMessage
 		};
 	},
+	register(state) {
+		return {
+			errorMessage: state.errorMessage
+		};
+	},
 	messenger(state) {
 		return {
 			sessionId: state.sessionId,
@@ -76,6 +81,16 @@ export const dispatchToProps = {
 					type: 'setRoute',
 					route
 				});
+			}
+		}
+	},
+	register(dispatch) {
+		return {
+			setErrorMessage(errorMessage) {
+				dispatch({
+					type: 'setErrorMessage',
+					errorMessage
+				})
 			}
 		}
 	},
