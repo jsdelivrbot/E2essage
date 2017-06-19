@@ -5,10 +5,19 @@
 import * as AsyncStorage from "react-native/Libraries/Storage/AsyncStorage";
 
 export const MessagesAsyncStorage = {
-	getMessages(asyncStorageId) {
-		return AsyncStorage.getItem(asyncStorageId)
+	getMessages(chatId) {
+		return AsyncStorage.getItem(`@Storage:messages#${chatId}`);
 	},
-	setMessages(asyncStorageId, messages) {
-		AsyncStorage.setItem(asyncStorageId, JSON.stringify(messages));
+	setMessages(chatId, messages) {
+		AsyncStorage.setItem(`@Storage:messages#${chatId}`, JSON.stringify(messages));
+	}
+};
+
+export const SessionAsyncStorage = {
+	getSession() {
+		return AsyncStorage.getItem('@Storage:session');
+	},
+	setSession(session) {
+		AsyncStorage.setItem('@Storage:session', JSON.stringify(session));
 	}
 };

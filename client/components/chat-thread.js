@@ -13,9 +13,9 @@ export class ChatThread extends Component {
 				onPress={this.props.onPress}>
 				<View style={styles.container}>
 					<View style={styles.bubble}>
-						<Text style={{fontSize: 40}}>{this.props.text.charAt(0)}</Text>
+						<Text style={{fontSize: 40}}>{this.props.contact.charAt(0).toUpperCase()}</Text>
 					</View>
-					<Text style={styles.text}>{this.props.text}</Text>
+					<Text style={styles.text}>{this.props.contact}</Text>
 				</View>
 			</TouchableHighlight>
 		);

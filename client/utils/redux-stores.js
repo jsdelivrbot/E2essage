@@ -6,27 +6,21 @@ export const MessengerStore = createStoreWithActions(
 	{
 		inputText: '',
 		messages: [],
-		route: 'chatThreads',
+		route: '',
+		errorMessage: '',
 		modalVisible: false,
-		chatThreads: [
-			{
-				chatId: 'one',
-				text: 'Chira'
-			},
-			{
-				chatId: 'two',
-				text: 'Laura'
-			},
-		],
+		chatThreads: [],
 		currentChatId: '',
+		sessionId: '',
+		username: '',
 	},
 	{
 		addMessage: function (state, action) {
 			const newMessages = [action.message, ...state.messages];
-			MessagesAsyncStorage.setMessages(`@Storage:messages#${action.chatId}`, newMessages);
+			MessagesAsyncStorage.setMessages(action.chatId, newMessages);
 			return {
 				...state,
-				messages: [action.message, ...state.messages],
+				messages: newMessages,
 			}
 		},
 		setInputText: function (state, action) {
@@ -35,7 +29,14 @@ export const MessengerStore = createStoreWithActions(
 				inputText: action.text
 			}
 		},
+		setErrorMessage: function (state, action) {
+			return {
+				...state,
+				errorMessage: action.errorMessage
+			}
+		},
 		setMessages: function (state, action) {
+			MessagesAsyncStorage.setMessages(action.chatId, action.messages);
 			return {
 				...state,
 				messages: action.messages
@@ -69,6 +70,13 @@ export const MessengerStore = createStoreWithActions(
 			return {
 				...state,
 				modalVisible: !state.modalVisible
+			}
+		},
+		setSession: function(state, action) {
+			return {
+				...state,
+				sessionId: action.sessionId,
+				username: action.username,
 			}
 		}
 	}

@@ -3,27 +3,27 @@
  */
 
 import React, {Component} from "react";
-import {ReduxRouter} from "../utils/router";
+import connect from "react-redux/es/connect/connect";
 import {Button, Text, TextInput, View} from "react-native";
+import {stateToProps} from "../utils/prop-mapping";
+import {chatSocket, createMessage} from "../communication/websocket-client";
+import {ReduxRouter} from "../utils/router";
 
-export class Login extends Component {
+class LoginComponent extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			user: '',
 			password: '',
-			errorMessage: ''
 		}
 	}
 
 	//TODO add server side authentication
 	authenticate() {
-		if (this.state.user === 'uifi95' && this.state.password === '1234') {
-			this.setState({...this.state, errorMessage: ''});
-			ReduxRouter.go('chatThreads');
-		} else {
-			this.setState({...this.state, errorMessage: 'Invalid Login'})
-		}
+		chatSocket.sendMessage(createMessage('login', {
+			username: this.state.user,
+			password: this.state.password
+		}));
 	}
 
 	render(){
@@ -32,12 +32,14 @@ export class Login extends Component {
 				flex: 1,
 				flexDirection: 'column',
 				justifyContent: 'center',
+				paddingLeft: 40,
+				paddingRight: 40,
 			}}>
 				<Text style={{
 					textAlign: 'center',
 					fontSize: 18,
 					color: 'red'
-				}}>{this.state.errorMessage}</Text>
+				}}>{this.props.errorMessage}</Text>
 				<TextInput
 					ref="user"
 					style={{textAlign: 'center', fontSize: 18}}
@@ -61,7 +63,17 @@ export class Login extends Component {
 					onSubmitEditing={this.authenticate.bind(this)}
 				/>
 				<Button ref="login" onPress={this.authenticate.bind(this)} title="LOGIN"/>
+				<Text style={{
+					marginTop: 15,
+					textAlign: 'center',
+					fontSize: 16,
+					color: 'gray'
+				}}
+					  onPress={() => ReduxRouter.go('register')}
+				>Don't have an account? Register</Text>
 			</View>
 		);
 	}
 }
+
+export const Login = connect(stateToProps.login)(LoginComponent);

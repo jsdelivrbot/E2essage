@@ -14,3 +14,5 @@ chatSocket.start();
 server.listen(3000, function listening() {
 	console.log(`Listening on localhost:${server.address().port}`);
 });
+
+module.exports = chatSocket;

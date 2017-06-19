@@ -23,6 +23,9 @@ class MongoCollection {
 		const self = this;
 		self.collectionName = collectionName;
 		self.allowedFields = allowedFields;
+		connect.then(function (db) {
+			db.collection(self.collectionName);
+		});
 	}
 	find(query, callback) {
 		const self = this;
@@ -52,6 +55,20 @@ class MongoCollection {
 			});
 		});
 	}
+	remove(query, callback) {
+		const self = this;
+		if (query._id) {
+			query._id = ObjectId(query._id);
+		}
+		connect.then(function (db) {
+			const collection = db.collection(self.collectionName);
+			collection.deleteMany(query).then(function (documents) {
+				callback(documents, null);
+			}, function (error) {
+				callback(null, error);
+			});
+		});
+	}
 	insert(data, callback) {
 		const self = this;
 		if (!checkAllowedFields(data, self.allowedFields)) {
@@ -67,7 +84,7 @@ class MongoCollection {
 				promise = collection.insertOne(data);
 			}
 			promise.then(function (result) {
-				callback(result.insertedId);
+				callback(_.extend({_id: result.insertedId}, data));
 			}, function (error) {
 				callback(error);
 			});

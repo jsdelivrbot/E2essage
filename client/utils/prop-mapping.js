@@ -3,8 +3,20 @@
  */
 
 export const stateToProps = {
+	login(state) {
+		return {
+			errorMessage: state.errorMessage
+		};
+	},
+	register(state) {
+		return {
+			errorMessage: state.errorMessage
+		};
+	},
 	messenger(state) {
 		return {
+			sessionId: state.sessionId,
+			username: state.username,
 			inputText: state.inputText,
 			messages: state.messages,
 			currentChatId: state.currentChatId
@@ -17,6 +29,9 @@ export const stateToProps = {
 	},
 	chatThreads(state) {
 		return {
+			errorMessage: state.errorMessage,
+			sessionId: state.sessionId,
+			username: state.username,
 			chatThreads: state.chatThreads,
 			modalVisible: state.modalVisible,
 		}
@@ -69,6 +84,16 @@ export const dispatchToProps = {
 			}
 		}
 	},
+	register(dispatch) {
+		return {
+			setErrorMessage(errorMessage) {
+				dispatch({
+					type: 'setErrorMessage',
+					errorMessage
+				})
+			}
+		}
+	},
 	chatThreads(dispatch) {
 		return {
 			addChatThread(chatThread) {
@@ -80,6 +105,12 @@ export const dispatchToProps = {
 			toggleModal() {
 				dispatch({
 					type: 'toggleModal'
+				})
+			},
+			setErrorMessage(errorMessage) {
+				dispatch({
+					type: 'setErrorMessage',
+					errorMessage
 				})
 			},
 			setCurrentChatId(chatId) {

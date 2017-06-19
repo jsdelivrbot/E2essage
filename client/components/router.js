@@ -10,12 +10,14 @@ import {Login} from "./login";
 import connect from "react-redux/es/connect/connect";
 import {dispatchToProps, stateToProps} from "../utils/prop-mapping";
 import {ChatThreads} from "./chat-threads";
+import {Register} from "./register";
 
 class RouterComponent extends Component {
 	constructor(props){
 		super(props);
 		this._routes = {
 			login: (<Login/>),
+			register: (<Register/>),
 			chatThreads: (<ChatThreads/>),
 			messages: (<Messenger/>),
 		};
