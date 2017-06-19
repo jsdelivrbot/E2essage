@@ -1,10 +1,11 @@
 /**
  * Created by sergiuu on 13.06.2017.
  */
-import {ReduxRouter} from "../utils/router";
-import {MessengerStore} from './redux-stores';
+import {MessengerStore} from "./redux-stores";
+import {chatSocket, createMessage} from "../communication/websocket-client";
 
-export const actioMenuButtons = {
+
+export const actionMenuButtons = {
 	chatThreads: [
 		{
 			buttonColor: '#9b59b6',
@@ -15,7 +16,15 @@ export const actioMenuButtons = {
 		{
 			buttonColor: '#3498db',
 			title: 'Log Out',
-			onPress: () => ReduxRouter.go('login'),
+			onPress() {
+				const state = MessengerStore.getState();
+				chatSocket.sendMessage(createMessage('logout', {
+					sessionToDelete: {
+						sessionId: state.sessionId,
+						username: state.username,
+					}
+				}, state.sessionId))
+			},
 			icon: 'md-log-out'
 		},
 	]

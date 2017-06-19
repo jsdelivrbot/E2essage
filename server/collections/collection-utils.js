@@ -55,6 +55,20 @@ class MongoCollection {
 			});
 		});
 	}
+	remove(query, callback) {
+		const self = this;
+		if (query._id) {
+			query._id = ObjectId(query._id);
+		}
+		connect.then(function (db) {
+			const collection = db.collection(self.collectionName);
+			collection.deleteMany(query).then(function (documents) {
+				callback(documents, null);
+			}, function (error) {
+				callback(null, error);
+			});
+		});
+	}
 	insert(data, callback) {
 		const self = this;
 		if (!checkAllowedFields(data, self.allowedFields)) {

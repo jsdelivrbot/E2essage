@@ -36,6 +36,22 @@ const messageHandlers = {
 			Sessions.insert(response, () => ws.send(createMessage('loginResponse', _.omit(response, (value, key) => key === '_id'))));
 		});
 	},
+	logout(ws, message) {
+		Sessions.remove(message.sessionToDelete, function (result, error) {
+			if (error) {
+				ws.send(createMessage('logoutResponse', {
+					error: `Internal Server Error: ${error}`
+				}));
+				return;
+			}
+			if (result) {
+				ws.send(createMessage('logoutResponse', {
+					status: `success`
+				}));
+				return;
+			}
+		})
+	},
 	register(ws, message) {
 		const username = message.username;
 		const password = message.password;

@@ -6,7 +6,7 @@ import connect from "react-redux/es/connect/connect";
 import {Button, FlatList, Modal, StyleSheet, Text, TextInput, TouchableHighlight, View} from "react-native";
 import {dispatchToProps, stateToProps} from "../utils/prop-mapping";
 import {ActionMenu} from "./action-menu";
-import {actioMenuButtons as actionMenuButtons} from "../utils/action-menu-buttons";
+import {actionMenuButtons as actionMenuButtons} from "../utils/action-menu-buttons";
 import {ChatThread} from "./chat-thread";
 import {ReduxRouter} from "../utils/router";
 import {chatSocket, createMessage} from "../communication/websocket-client";

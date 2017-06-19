@@ -95,6 +95,19 @@ export const messageHandlers = {
 			ReduxRouter.go('login');
 		}
 	},
+	logoutResponse(ws, message) {
+		if (message.error) {
+			alert(message.error);
+			return;
+		}
+		if (message.status !== 'success') { return }
+		setSession({});
+		MessengerStore.dispatch({
+			type: 'setErrorMessage',
+			errorMessage: ''
+		});
+		ReduxRouter.go('login');
+	},
 	authResponse(ws, message) {
 		moveSessionToHomePage();
 	},
