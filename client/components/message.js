@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
 		paddingBottom: 6,
 		paddingTop: 6,
 		backgroundColor: '#eceff1',
+		transform: [{ scaleY: -1 }]
 	},
 	yourContainer: {
 		alignItems: 'flex-end',

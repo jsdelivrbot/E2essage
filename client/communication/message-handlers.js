@@ -94,15 +94,8 @@ export const messageHandlers = {
 			if (messages.length) {
 				const local = messages[0];
 				const remote = message;
-				console.log(local, remote);
 				if (local.sender === remote.username && local.sendDate === remote.sendDate) { return }
 			}
-			const reduxMessages = MessengerStore.getState().messages;
-			reduxMessages.pop();
-			MessengerStore.dispatch({
-				type: 'setMessages',
-				messages: reduxMessages
-			});
 			CryptoTool.decrypt(message.content, privateKey).then(function (text) {
 				const messageToAdd = {
 					text: text.data,

@@ -1,4 +1,4 @@
-import {Button, ListView, StyleSheet, Text, TextInput, View} from "react-native";
+import {Button, FlatList, ListView, StyleSheet, Text, TextInput, View} from "react-native";
 import connect from "react-redux/es/connect/connect";
 import React, {Component} from "react";
 import Message from "./message";
@@ -45,17 +45,16 @@ class Mess extends Component {
 		this.props.addMessage({
 			text,
 			sender: self.props.username,
-			chatId: self.props.currentChatId,
-			sendDate: sendDate
+			sendDate: new Date(sendDate)
 		}, self.props.currentChatId);
+		self._clearInput();
 		CryptoTool.encrypt(text, this.props.publicKey).then(function (ciphertext) {
 			chatSocket.sendMessage(createMessage('addMessage', {
 				content: ciphertext.data,
 				username: self.props.username,
 				chatId: self.props.currentChatId,
-				sendDate: sendDate
+				sendDate
 			}, self.props.sessionId));
-			self._clearInput();
 		});
 
 	}
@@ -67,19 +66,20 @@ class Mess extends Component {
 				flexDirection: 'column',
 			}}>
 				<Text style={styles.title}>Messages</Text>
-				<ListView
+				<FlatList
 					ref='scroller'
 					keyboardShouldPersistTaps='always'
 					enableEmptySections={true}
 					style={{flex: 1}}
-					dataSource={this.dataSource.cloneWithRows(this.props.messages)}
-					renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
+					data={this.props.messages}
+					keyExtractor={(item, index) => index}
+					ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
 					renderScrollComponent={props => <InvertibleScrollView {...props} inverted/>}
-					renderRow={(row) =>
-						<Message text={row.text}
-								 yours={row.sender === this.props.username}
-								 sender={row.sender}
-								 sendDate={new Date(row.sendDate)}
+					renderItem={({item}) =>
+						<Message text={item.text}
+								 yours={item.sender === this.props.username}
+								 sender={item.sender}
+								 sendDate={new Date(item.sendDate)}
 						/>}
 				/>
 				<View style={{
