@@ -8,7 +8,11 @@ const Users = collections.Users;
 const Chats = collections.Chats;
 const Sessions = collections.Sessions;
 const ObjectId = require('mongodb').ObjectID;
+const openpgp = require('openpgp');
 
+openpgp.initWorker({ path:'openpgp.worker.js' }) // set the relative web worker path
+
+openpgp.config.aead_protect = true // activate fast AES-GCM mode (not yet OpenPGP standard)
 
 function createMessage(type, data) {
 	return JSON.stringify({type, data});
@@ -110,10 +114,12 @@ const messageHandlers = {
 	},
 	addMessage(ws, message, server) {
 		Messages.insert(message, (message) => {
-			server.broadcast(createMessage('receiveMessage', message), []);
+			Chats.findOne({ _id: message.chatId}, function (result, error) {
+				server.broadcast(createMessage('receiveMessage', message), [result.user1, result.user2]);
+			});
 		});
 	},
-	newChat(ws, message) {
+	newChat(ws, message, server) {
 		Users.findOne({username: message.username}, function (user, error) {
 			if (error) {
 				ws.send(createMessage('chatCreated', {error}));
@@ -124,10 +130,24 @@ const messageHandlers = {
 				return;
 			}
 			Chats.insert({user1: ws._username, user2: user.username}, (chat) => {
-				ws.send(createMessage('chatCreated', {
-					chatId: chat._id,
+				const users = [ws._username, message.username];
+				const chatId = chat._id;
+				server.broadcast(createMessage('chatCreated', {
+					chatId: chatId,
 					contact: user.username
-				}));
+				}), users);
+				const options = {
+					userIds: [ws._userId, user._id],
+					numBits: 1024,
+					passphrase: 'no idea'
+				};
+				openpgp.generateKey(options).then(function (key) {
+					server.broadcast(createMessage('receiveKey', {
+						chatId,
+						privateKey: key.privateKeyArmored,
+						publicKey: key.publicKeyArmored,
+					}), users);
+				})
 			});
 		});
 

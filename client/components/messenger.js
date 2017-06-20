@@ -9,21 +9,17 @@ import {MessengerStore} from "../utils/redux-stores";
 import {ReduxRouter} from "../utils/router";
 import * as BackHandler from "react-native/Libraries/Utilities/BackHandler.android";
 import {chatSocket, createMessage} from "../communication/websocket-client";
+import {CryptoTool} from "../encryption/crypto-tool";
 
 
 class Mess extends Component {
 	constructor(props) {
 		super(props);
-		// MessagesAsyncStorage.getMessages(`@Storage:messages#${this.props.currentChatId}`).then((messages) => {
-		// 	MessengerStore.dispatch({
-		// 		type: 'setMessages',
-		// 		messages: JSON.parse(messages) || []
-		// 	});
-		// });
 		this.dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.text !== r2.text});
 	};
 
 	componentWillMount(){
+		this.props.setMessages([]);
 		chatSocket.sendMessage(createMessage('getMessages', {query: { chatId: this.props.currentChatId}}, this.props.sessionId));
 	}
 
@@ -44,13 +40,17 @@ class Mess extends Component {
 	}
 
 	_addMessage(text) {
-		chatSocket.sendMessage(createMessage('addMessage', {
-			content: text,
-			username: this.props.username,
-			chatId: this.props.currentChatId,
-			sendDate: new Date().toISOString()
-		}, this.props.sessionId));
-		this._clearInput();
+		const self = this;
+		CryptoTool.encrypt(text, this.props.publicKey).then(function (ciphertext) {
+			chatSocket.sendMessage(createMessage('addMessage', {
+				content: ciphertext.data,
+				username: self.props.username,
+				chatId: self.props.currentChatId,
+				sendDate: new Date().toISOString()
+			}, self.props.sessionId));
+			self._clearInput();
+		});
+
 	}
 
 	render() {

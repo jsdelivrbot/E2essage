@@ -16,7 +16,7 @@
 		"dateformat": "^2.0.0",
 		"react-native-action-button": "^2.6.10",
 		"react-native-vector-icons": "^4.2.0",
-		"ws": "^2.2.1"
+		"react-native-openpgp": "^1.0.3"
 	},
 	"devDependencies": {
 		"babel-jest": "20.0.3",

@@ -10,6 +10,7 @@ import {actionMenuButtons as actionMenuButtons} from "../utils/action-menu-butto
 import {ChatThread} from "./chat-thread";
 import {ReduxRouter} from "../utils/router";
 import {chatSocket, createMessage} from "../communication/websocket-client";
+import {KeysAsyncStorage} from "../utils/async-storage";
 
 
 class Threads extends Component {
@@ -27,7 +28,12 @@ class Threads extends Component {
 
 	openChatThread(chatId) {
 		this.props.setCurrentChatId(chatId);
-		ReduxRouter.go('messages');
+		const self = this;
+		KeysAsyncStorage.getKeys().then(function (keys) {
+			keys = JSON.parse(keys);
+			self.props.setKeys(keys[chatId]);
+			ReduxRouter.go('messages');
+		});
 	}
 
 	chatAlreadyExists() {

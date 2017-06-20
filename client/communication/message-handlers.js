@@ -2,8 +2,9 @@
  * Created by sergiuu on 14.06.2017.
  */
 import {MessengerStore} from '../utils/redux-stores'
-import {SessionAsyncStorage} from "../utils/async-storage";
+import {SessionAsyncStorage, KeysAsyncStorage} from "../utils/async-storage";
 import {ReduxRouter} from "../utils/router";
+import {CryptoTool} from "../encryption/crypto-tool";
 
 
 function setSession(message) {
@@ -18,9 +19,12 @@ function setSession(message) {
 	});
 }
 
+function setKey(key) {
+	KeysAsyncStorage.setKey(key);
+}
+
 export function sessionValid(message) {
 	if (message.error && message.error === 'Invalid Session') {
-		console.log('INVALID SESSION');
 		setSession({});
 		ReduxRouter.go('login');
 		MessengerStore.dispatch({
@@ -45,27 +49,33 @@ function moveSessionToHomePage() {
 
 export const messageHandlers = {
 	messages(ws, message) {
-		const messagesToSet = message.map(function (message) {
-			return {
-				text: message.content,
-				sender: message.username,
-				sendDate: new Date(message.sendDate),
-			}
+		message.forEach(function (message) {
+			const privateKey = MessengerStore.getState().privateKey;
+			CryptoTool.decrypt(message.content, privateKey).then(function (text) {
+				const messageToAdd = {
+					text: text.data,
+					sender: message.username,
+					sendDate: new Date(message.sendDate),
+				};
+				MessengerStore.dispatch({
+					type: 'addMessage',
+					message: messageToAdd
+				});
+			});
 		});
-		MessengerStore.dispatch({
-			type: 'setMessages',
-			messages: messagesToSet.reverse()
-		})
 	},
 	receiveMessage(ws, message) {
-		const messageToAdd = {
-			text: message.content,
-			sender: message.username,
-			sendDate: new Date(message.sendDate),
-		};
-		MessengerStore.dispatch({
-			type: 'addMessage',
-			message: messageToAdd
+		const privateKey = MessengerStore.getState().privateKey;
+		CryptoTool.decrypt(message.content, privateKey).then(function (text) {
+			const messageToAdd = {
+				text: text.data,
+				sender: message.username,
+				sendDate: new Date(message.sendDate),
+			};
+			MessengerStore.dispatch({
+				type: 'addMessage',
+				message: messageToAdd
+			});
 		});
 	},
 	loginResponse(ws, message) {
@@ -132,5 +142,8 @@ export const messageHandlers = {
 		MessengerStore.dispatch({
 			type: 'toggleModal',
 		});
+	},
+	receiveKey(ws, message) {
+		setKey(message);
 	}
 };

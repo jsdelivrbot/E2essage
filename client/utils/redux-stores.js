@@ -13,6 +13,8 @@ export const MessengerStore = createStoreWithActions(
 		currentChatId: '',
 		sessionId: '',
 		username: '',
+		privateKey: null,
+		publicKey: null,
 	},
 	{
 		addMessage: function (state, action) {
@@ -77,6 +79,12 @@ export const MessengerStore = createStoreWithActions(
 				...state,
 				sessionId: action.sessionId,
 				username: action.username,
+			}
+		},
+		setKeys(state, action) {
+			return {
+				...state,
+				...action.keyObject
 			}
 		}
 	}
