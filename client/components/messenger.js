@@ -41,12 +41,19 @@ class Mess extends Component {
 
 	_addMessage(text) {
 		const self = this;
+		const sendDate = new Date().toISOString();
+		this.props.addMessage({
+			text,
+			sender: self.props.username,
+			chatId: self.props.currentChatId,
+			sendDate: sendDate
+		}, self.props.currentChatId);
 		CryptoTool.encrypt(text, this.props.publicKey).then(function (ciphertext) {
 			chatSocket.sendMessage(createMessage('addMessage', {
 				content: ciphertext.data,
 				username: self.props.username,
 				chatId: self.props.currentChatId,
-				sendDate: new Date().toISOString()
+				sendDate: sendDate
 			}, self.props.sessionId));
 			self._clearInput();
 		});

@@ -58,7 +58,7 @@ export const messageHandlers = {
 				while (i < messages.length) {
 					const local = messages[messages.length - i - 1];
 					const remote = message[0];
-					if (local.sender !== remote.sender && local.sendDate !== remote.sendDate) { break; }
+					if (local.sender !== remote.username || local.sendDate !== remote.sendDate) { break; }
 					message.splice(0, 1);
 					alreadyDecrypted.splice(0, 0, local);
 					i++;
@@ -89,16 +89,31 @@ export const messageHandlers = {
 		const state = MessengerStore.getState();
 		const privateKey = state.privateKey;
 		const chatId = state.currentChatId;
-		CryptoTool.decrypt(message.content, privateKey).then(function (text) {
-			const messageToAdd = {
-				text: text.data,
-				sender: message.username,
-				sendDate: new Date(message.sendDate),
-			};
+		MessagesAsyncStorage.getMessages(chatId).then(function (messages){
+			messages = JSON.parse(messages) || [];
+			if (messages.length) {
+				const local = messages[0];
+				const remote = message;
+				console.log(local, remote);
+				if (local.sender === remote.username && local.sendDate === remote.sendDate) { return }
+			}
+			const reduxMessages = MessengerStore.getState().messages;
+			reduxMessages.pop();
 			MessengerStore.dispatch({
-				type: 'addMessage',
-				message: messageToAdd,
-				chatId
+				type: 'setMessages',
+				messages: reduxMessages
+			});
+			CryptoTool.decrypt(message.content, privateKey).then(function (text) {
+				const messageToAdd = {
+					text: text.data,
+					sender: message.username,
+					sendDate: new Date(message.sendDate),
+				};
+				MessengerStore.dispatch({
+					type: 'addMessage',
+					message: messageToAdd,
+					chatId
+				});
 			});
 		});
 	},

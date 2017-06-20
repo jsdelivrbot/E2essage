@@ -42,6 +42,13 @@ export const stateToProps = {
 export const dispatchToProps = {
 	messenger(dispatch) {
 		return {
+			addMessage(message, chatId) {
+				dispatch({
+					type: 'addMessage',
+					message,
+					chatId,
+				});
+			},
 			setInputText(text) {
 				dispatch({
 					type: 'setInputText',
