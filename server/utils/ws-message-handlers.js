@@ -132,10 +132,14 @@ const messageHandlers = {
 			Chats.insert({user1: ws._username, user2: user.username}, (chat) => {
 				const users = [ws._username, message.username];
 				const chatId = chat._id;
+				ws.send(createMessage('chatCreated', {
+					chatId: chatId,
+					contact: message.username
+				}));
 				server.broadcast(createMessage('chatCreated', {
 					chatId: chatId,
-					contact: user.username
-				}), users);
+					contact: ws._username
+				}), [message.username]);
 				const options = {
 					userIds: [ws._userId, user._id],
 					numBits: 1024,

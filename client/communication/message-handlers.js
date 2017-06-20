@@ -163,9 +163,11 @@ export const messageHandlers = {
 			type: 'addChatThread',
 			chatThread: message
 		});
-		MessengerStore.dispatch({
-			type: 'toggleModal',
-		});
+		if (MessengerStore.getState().modalVisible) {
+			MessengerStore.dispatch({
+				type: 'toggleModal',
+			});
+		}
 	},
 	receiveKey(ws, message) {
 		setKey(message);
