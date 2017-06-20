@@ -1,4 +1,4 @@
-import {Button, ListView, StyleSheet, Text, TextInput, View} from "react-native";
+import {Button, FlatList, ListView, StyleSheet, Text, TextInput, View} from "react-native";
 import connect from "react-redux/es/connect/connect";
 import React, {Component} from "react";
 import Message from "./message";
@@ -9,21 +9,17 @@ import {MessengerStore} from "../utils/redux-stores";
 import {ReduxRouter} from "../utils/router";
 import * as BackHandler from "react-native/Libraries/Utilities/BackHandler.android";
 import {chatSocket, createMessage} from "../communication/websocket-client";
+import {CryptoTool} from "../encryption/crypto-tool";
 
 
 class Mess extends Component {
 	constructor(props) {
 		super(props);
-		// MessagesAsyncStorage.getMessages(`@Storage:messages#${this.props.currentChatId}`).then((messages) => {
-		// 	MessengerStore.dispatch({
-		// 		type: 'setMessages',
-		// 		messages: JSON.parse(messages) || []
-		// 	});
-		// });
 		this.dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.text !== r2.text});
 	};
 
 	componentWillMount(){
+		this.props.setMessages([]);
 		chatSocket.sendMessage(createMessage('getMessages', {query: { chatId: this.props.currentChatId}}, this.props.sessionId));
 	}
 
@@ -44,13 +40,23 @@ class Mess extends Component {
 	}
 
 	_addMessage(text) {
-		chatSocket.sendMessage(createMessage('addMessage', {
-			content: text,
-			username: this.props.username,
-			chatId: this.props.currentChatId,
-			sendDate: new Date().toISOString()
-		}, this.props.sessionId));
-		this._clearInput();
+		const self = this;
+		const sendDate = new Date().toISOString();
+		this.props.addMessage({
+			text,
+			sender: self.props.username,
+			sendDate: new Date(sendDate)
+		}, self.props.currentChatId);
+		self._clearInput();
+		CryptoTool.encrypt(text, this.props.publicKey).then(function (ciphertext) {
+			chatSocket.sendMessage(createMessage('addMessage', {
+				content: ciphertext.data,
+				username: self.props.username,
+				chatId: self.props.currentChatId,
+				sendDate
+			}, self.props.sessionId));
+		});
+
 	}
 
 	render() {
@@ -60,19 +66,20 @@ class Mess extends Component {
 				flexDirection: 'column',
 			}}>
 				<Text style={styles.title}>Messages</Text>
-				<ListView
+				<FlatList
 					ref='scroller'
 					keyboardShouldPersistTaps='always'
 					enableEmptySections={true}
 					style={{flex: 1}}
-					dataSource={this.dataSource.cloneWithRows(this.props.messages)}
-					renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
+					data={this.props.messages}
+					keyExtractor={(item, index) => index}
+					ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
 					renderScrollComponent={props => <InvertibleScrollView {...props} inverted/>}
-					renderRow={(row) =>
-						<Message text={row.text}
-								 yours={row.sender === this.props.username}
-								 sender={row.sender}
-								 sendDate={new Date(row.sendDate)}
+					renderItem={({item}) =>
+						<Message text={item.text}
+								 yours={item.sender === this.props.username}
+								 sender={item.sender}
+								 sendDate={new Date(item.sendDate)}
 						/>}
 				/>
 				<View style={{

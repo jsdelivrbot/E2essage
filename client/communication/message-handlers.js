@@ -2,8 +2,9 @@
  * Created by sergiuu on 14.06.2017.
  */
 import {MessengerStore} from '../utils/redux-stores'
-import {SessionAsyncStorage} from "../utils/async-storage";
+import {SessionAsyncStorage, KeysAsyncStorage, MessagesAsyncStorage} from "../utils/async-storage";
 import {ReduxRouter} from "../utils/router";
+import {CryptoTool} from "../encryption/crypto-tool";
 
 
 function setSession(message) {
@@ -18,9 +19,12 @@ function setSession(message) {
 	});
 }
 
+function setKey(key) {
+	KeysAsyncStorage.setKey(key);
+}
+
 export function sessionValid(message) {
 	if (message.error && message.error === 'Invalid Session') {
-		console.log('INVALID SESSION');
 		setSession({});
 		ReduxRouter.go('login');
 		MessengerStore.dispatch({
@@ -45,27 +49,65 @@ function moveSessionToHomePage() {
 
 export const messageHandlers = {
 	messages(ws, message) {
-		const messagesToSet = message.map(function (message) {
-			return {
-				text: message.content,
-				sender: message.username,
-				sendDate: new Date(message.sendDate),
-			}
-		});
-		MessengerStore.dispatch({
-			type: 'setMessages',
-			messages: messagesToSet.reverse()
-		})
+		if (message.length) {
+			const chatId = MessengerStore.getState().currentChatId;
+			MessagesAsyncStorage.getMessages(chatId).then(function (messages){
+				messages = JSON.parse(messages) || [];
+				let i = 0;
+				const alreadyDecrypted = [];
+				while (i < messages.length) {
+					const local = messages[messages.length - i - 1];
+					const remote = message[0];
+					if (local.sender !== remote.username || local.sendDate !== remote.sendDate) { break; }
+					message.splice(0, 1);
+					alreadyDecrypted.splice(0, 0, local);
+					i++;
+				}
+				MessengerStore.dispatch({
+					type: 'setMessages',
+					messages: alreadyDecrypted,
+				});
+				message.forEach(function (message) {
+					const privateKey = MessengerStore.getState().privateKey;
+					CryptoTool.decrypt(message.content, privateKey).then(function (text) {
+						const messageToAdd = {
+							text: text.data,
+							sender: message.username,
+							sendDate: new Date(message.sendDate),
+						};
+						MessengerStore.dispatch({
+							type: 'addMessage',
+							message: messageToAdd,
+							chatId
+						});
+					});
+				});
+			});
+		}
 	},
 	receiveMessage(ws, message) {
-		const messageToAdd = {
-			text: message.content,
-			sender: message.username,
-			sendDate: new Date(message.sendDate),
-		};
-		MessengerStore.dispatch({
-			type: 'addMessage',
-			message: messageToAdd
+		const state = MessengerStore.getState();
+		const privateKey = state.privateKey;
+		const chatId = state.currentChatId;
+		MessagesAsyncStorage.getMessages(chatId).then(function (messages){
+			messages = JSON.parse(messages) || [];
+			if (messages.length) {
+				const local = messages[0];
+				const remote = message;
+				if (local.sender === remote.username && local.sendDate === remote.sendDate) { return }
+			}
+			CryptoTool.decrypt(message.content, privateKey).then(function (text) {
+				const messageToAdd = {
+					text: text.data,
+					sender: message.username,
+					sendDate: new Date(message.sendDate),
+				};
+				MessengerStore.dispatch({
+					type: 'addMessage',
+					message: messageToAdd,
+					chatId
+				});
+			});
 		});
 	},
 	loginResponse(ws, message) {
@@ -129,8 +171,13 @@ export const messageHandlers = {
 			type: 'addChatThread',
 			chatThread: message
 		});
-		MessengerStore.dispatch({
-			type: 'toggleModal',
-		});
+		if (MessengerStore.getState().modalVisible) {
+			MessengerStore.dispatch({
+				type: 'toggleModal',
+			});
+		}
+	},
+	receiveKey(ws, message) {
+		setKey(message);
 	}
 };

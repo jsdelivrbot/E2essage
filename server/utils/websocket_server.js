@@ -68,15 +68,15 @@ class ChatSocketServer {
 		this.messageHandlers[type] = handler;
 	};
 
-	checkUserIds(client, userIds) {
-		if (!userIds || !userIds.length) { return true }
-		return client._userId && userIds.indexOf(client._userId) > -1;
+	checkUser(client, users) {
+		if (!users || !users.length) { return true }
+		return client._userId && users.indexOf(client._username) > -1;
 	}
 
-	broadcast(data, userIds) {
+	broadcast(data, users) {
 		this.wss.clients.forEach((client) => {
-			if (client.readyState === ws.OPEN && this.checkUserIds(client, userIds)) {
-				client.send(data);
+			if (client.readyState === ws.OPEN && this.checkUser(client, users)) {
+					client.send(data);
 			}
 		})
 	}

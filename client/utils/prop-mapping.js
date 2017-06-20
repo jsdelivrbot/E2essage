@@ -19,7 +19,8 @@ export const stateToProps = {
 			username: state.username,
 			inputText: state.inputText,
 			messages: state.messages,
-			currentChatId: state.currentChatId
+			currentChatId: state.currentChatId,
+			publicKey: state.publicKey
 		};
 	},
 	router(state) {
@@ -41,15 +42,10 @@ export const stateToProps = {
 export const dispatchToProps = {
 	messenger(dispatch) {
 		return {
-			//TODO add server side values here
-			addMessage(text, chatId) {
+			addMessage(message, chatId) {
 				dispatch({
 					type: 'addMessage',
-					message: {
-						text,
-						sender: 'Sergiu',
-						sendDate: new Date()
-					},
+					message,
 					chatId,
 				});
 			},
@@ -106,6 +102,12 @@ export const dispatchToProps = {
 				dispatch({
 					type: 'toggleModal'
 				})
+			},
+			setKeys(keyObject) {
+				dispatch({
+					type: 'setKeys',
+					keyObject
+				});
 			},
 			setErrorMessage(errorMessage) {
 				dispatch({

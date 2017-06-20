@@ -21,3 +21,22 @@ export const SessionAsyncStorage = {
 		AsyncStorage.setItem('@Storage:session', JSON.stringify(session));
 	}
 };
+
+export const KeysAsyncStorage = {
+	getKeys() {
+		return AsyncStorage.getItem('@Storage:keys');
+	},
+	setKey(key) {
+		AsyncStorage.getItem('@Storage:keys').then(function (keys) {
+			const chatId = key.chatId;
+			delete key.chatId;
+			if (!keys) {
+				keys = {}
+			} else {
+				keys = JSON.parse(keys);
+			}
+			keys[chatId] = key;
+			AsyncStorage.setItem('@Storage:keys', JSON.stringify(keys));
+		});
+	}
+};
