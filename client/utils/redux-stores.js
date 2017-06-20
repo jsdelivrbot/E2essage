@@ -38,7 +38,6 @@ export const MessengerStore = createStoreWithActions(
 			}
 		},
 		setMessages: function (state, action) {
-			MessagesAsyncStorage.setMessages(action.chatId, action.messages);
 			return {
 				...state,
 				messages: action.messages

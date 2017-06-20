@@ -2,7 +2,7 @@
  * Created by sergiuu on 14.06.2017.
  */
 import {MessengerStore} from '../utils/redux-stores'
-import {SessionAsyncStorage, KeysAsyncStorage} from "../utils/async-storage";
+import {SessionAsyncStorage, KeysAsyncStorage, MessagesAsyncStorage} from "../utils/async-storage";
 import {ReduxRouter} from "../utils/router";
 import {CryptoTool} from "../encryption/crypto-tool";
 
@@ -49,23 +49,46 @@ function moveSessionToHomePage() {
 
 export const messageHandlers = {
 	messages(ws, message) {
-		message.forEach(function (message) {
-			const privateKey = MessengerStore.getState().privateKey;
-			CryptoTool.decrypt(message.content, privateKey).then(function (text) {
-				const messageToAdd = {
-					text: text.data,
-					sender: message.username,
-					sendDate: new Date(message.sendDate),
-				};
+		if (message.length) {
+			const chatId = MessengerStore.getState().currentChatId;
+			MessagesAsyncStorage.getMessages(chatId).then(function (messages){
+				messages = JSON.parse(messages) || [];
+				let i = 0;
+				const alreadyDecrypted = [];
+				while (i < messages.length) {
+					const local = messages[messages.length - i - 1];
+					const remote = message[0];
+					if (local.sender !== remote.sender && local.sendDate !== remote.sendDate) { break; }
+					message.splice(0, 1);
+					alreadyDecrypted.splice(0, 0, local);
+					i++;
+				}
 				MessengerStore.dispatch({
-					type: 'addMessage',
-					message: messageToAdd
+					type: 'setMessages',
+					messages: alreadyDecrypted,
+				});
+				message.forEach(function (message) {
+					const privateKey = MessengerStore.getState().privateKey;
+					CryptoTool.decrypt(message.content, privateKey).then(function (text) {
+						const messageToAdd = {
+							text: text.data,
+							sender: message.username,
+							sendDate: new Date(message.sendDate),
+						};
+						MessengerStore.dispatch({
+							type: 'addMessage',
+							message: messageToAdd,
+							chatId
+						});
+					});
 				});
 			});
-		});
+		}
 	},
 	receiveMessage(ws, message) {
-		const privateKey = MessengerStore.getState().privateKey;
+		const state = MessengerStore.getState();
+		const privateKey = state.privateKey;
+		const chatId = state.currentChatId;
 		CryptoTool.decrypt(message.content, privateKey).then(function (text) {
 			const messageToAdd = {
 				text: text.data,
@@ -74,7 +97,8 @@ export const messageHandlers = {
 			};
 			MessengerStore.dispatch({
 				type: 'addMessage',
-				message: messageToAdd
+				message: messageToAdd,
+				chatId
 			});
 		});
 	},
