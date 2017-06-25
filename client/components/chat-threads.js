@@ -117,7 +117,7 @@ class Threads extends Component {
 					animationType={"slide"}
 					transparent={true}
 					visible={this.props.modalVisible}
-					onRequestClose={() => {alert("Modal has been closed.")}}
+					onRequestClose={() => { this.props.toggleModal() }}
 				>{this.modalTemplate.call(this)}</Modal>
 
 				<FlatList

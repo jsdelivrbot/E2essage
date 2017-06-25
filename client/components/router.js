@@ -11,6 +11,9 @@ import connect from "react-redux/es/connect/connect";
 import {dispatchToProps, stateToProps} from "../utils/prop-mapping";
 import {ChatThreads} from "./chat-threads";
 import {Register} from "./register";
+import {chatSocket, createMessage} from "../communication/websocket-client";
+import {SessionAsyncStorage} from "../utils/async-storage";
+import {ReduxRouter} from "../utils/router";
 
 class RouterComponent extends Component {
 	constructor(props){
@@ -21,6 +24,19 @@ class RouterComponent extends Component {
 			chatThreads: (<ChatThreads/>),
 			messages: (<Messenger/>),
 		};
+	}
+
+	componentWillMount() {
+		SessionAsyncStorage.getSession().then(function (session) {
+			session = JSON.parse(session);
+			if (!session || !Object.keys(session).length) {
+				ReduxRouter.go('login');
+				return;
+			}
+			chatSocket.initialMessage(function (ws) {
+				ws.send(createMessage('authenticate', session))
+			});
+		});
 	}
 
 	render() {

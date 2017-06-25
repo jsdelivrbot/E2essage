@@ -4,6 +4,8 @@
 import {messageHandlers} from "../communication/message-handlers";
 import {sessionValid} from "./message-handlers";
 
+const webSocketURL = 'ws://e2essage.herokuapp.com/';
+
 export function createMessage(type, data, sessionId) {
 	return JSON.stringify({type, sessionId, ...data});
 }
@@ -28,6 +30,10 @@ class ChatSocketClient {
 		this.messageHandlers[type] = handler;
 	};
 
+	initialMessage(handler) {
+		this.ws.onopen = () => handler(this.ws)
+	}
+
 	sendMessage(message) {
 		if (this.ws.readyState === this.ws.OPEN) {
 			this.ws.send(message);
@@ -35,4 +41,4 @@ class ChatSocketClient {
 	}
 }
 
-export const chatSocket = new ChatSocketClient('ws://192.168.0.108:3000/', messageHandlers);
+export const chatSocket = new ChatSocketClient(webSocketURL, messageHandlers);
