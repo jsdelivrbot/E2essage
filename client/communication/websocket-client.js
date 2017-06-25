@@ -39,4 +39,4 @@ class ChatSocketClient {
 	}
 }
 
-export const chatSocket = new ChatSocketClient('ws://192.168.0.108:3000/', messageHandlers);
+export const chatSocket = new ChatSocketClient('ws://e2essage.herokuapp.com/', messageHandlers);
