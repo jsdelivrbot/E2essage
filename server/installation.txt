@@ -1,0 +1,6 @@
+To check the status of the server on heroku go to https://e2essage.herokuapp.com/
+If you see the JSON {"status": "running"} then it means the server is on.
+The server is hosted in the cloud, but can also be run locally, to do that, run these commands in the terminal or command line:
+npm install (with sudo if necessary)
+npm mongo
+npm start (in a second terminal/command line)

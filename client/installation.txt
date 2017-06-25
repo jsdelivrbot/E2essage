@@ -1,0 +1,1 @@
+go to android/app/build/outputs/apk, and take apk-release or apk-debug from there, copy them to your android device's local storage, install them on android and start the application. Be sure to have install from unknown sources enabled on the device.
