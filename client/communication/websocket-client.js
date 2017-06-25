@@ -4,6 +4,8 @@
 import {messageHandlers} from "../communication/message-handlers";
 import {sessionValid} from "./message-handlers";
 
+const webSocketURL = 'ws://e2essage.herokuapp.com/';
+
 export function createMessage(type, data, sessionId) {
 	return JSON.stringify({type, sessionId, ...data});
 }
@@ -39,4 +41,4 @@ class ChatSocketClient {
 	}
 }
 
-export const chatSocket = new ChatSocketClient('ws://e2essage.herokuapp.com/', messageHandlers);
+export const chatSocket = new ChatSocketClient(webSocketURL, messageHandlers);
