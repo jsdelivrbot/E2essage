@@ -34,7 +34,8 @@ class RouterComponent extends Component {
 				return;
 			}
 			chatSocket.initialMessage(function (ws) {
-				ws.send(createMessage('authenticate', session))
+				ws.send(createMessage('authenticate', session));
+				setInterval(() => ws.send(createMessage('ping'), {}, session.sessionId), 50000);
 			});
 		});
 	}

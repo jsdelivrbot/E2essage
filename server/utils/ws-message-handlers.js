@@ -170,6 +170,9 @@ const messageHandlers = {
 			});
 			ws.send(createMessage('receiveChats', mappedChats));
 		});
+	},
+	ping(ws, message) {
+		console.log(`got ping from ${ws._username}`)
 	}
 };
 
