@@ -33,7 +33,9 @@ class RouterComponent extends Component {
 				ReduxRouter.go('login');
 				return;
 			}
-			chatSocket.sendMessage(createMessage('authenticate', session))
+			chatSocket.initialMessage(function (ws) {
+				ws.send(createMessage('authenticate', session))
+			});
 		});
 	}
 

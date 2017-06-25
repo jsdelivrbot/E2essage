@@ -20,9 +20,11 @@
     "openpgp": "^2.5.4"
   },
   "dbInfo": {
-    "address": "localhost",
-    "port": 27017,
-    "dbName": "e2essage"
+    "address": "ds135812.mlab.com",
+    "port": 35812,
+    "dbName": "e2essage",
+    "user": "uifi95",
+    "password": "magix"
   }
 
 }

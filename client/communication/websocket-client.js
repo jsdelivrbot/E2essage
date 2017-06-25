@@ -28,6 +28,10 @@ class ChatSocketClient {
 		this.messageHandlers[type] = handler;
 	};
 
+	initialMessage(handler) {
+		this.ws.onopen = () => handler(this.ws)
+	}
+
 	sendMessage(message) {
 		if (this.ws.readyState === this.ws.OPEN) {
 			this.ws.send(message);

@@ -12,7 +12,7 @@ const chatSocket = new wss.ChatSocketServer(server, messageHandlers);
 chatSocket.start();
 
 server.listen(3000, function listening() {
-	console.log(`Listening on localhost:${server.address().port}`);
+	console.log(`Listening on port ${server.address().port}`);
 });
 
 module.exports = chatSocket;
