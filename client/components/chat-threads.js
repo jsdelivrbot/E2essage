@@ -94,7 +94,6 @@ class Threads extends Component {
 								'newChat',
 								{username: this.state.newChatText},
 								this.props.sessionId));
-							this.setState({newChatText: ''});
 						}
 					}}/>
 				</View>
