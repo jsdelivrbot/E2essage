@@ -129,17 +129,13 @@ const messageHandlers = {
 				ws.send(createMessage('chatCreated', {error: 'That user does not exist.'}));
 				return;
 			}
+			if (!server.isUserOnline(message.username)){
+				ws.send(createMessage('chatCreated', {error: 'That user is not currently online.'}));
+				return;
+			}
 			Chats.insert({user1: ws._username, user2: user.username}, (chat) => {
 				const users = [ws._username, message.username];
 				const chatId = chat._id;
-				ws.send(createMessage('chatCreated', {
-					chatId: chatId,
-					contact: message.username
-				}));
-				server.broadcast(createMessage('chatCreated', {
-					chatId: chatId,
-					contact: ws._username
-				}), [message.username]);
 				const options = {
 					userIds: [ws._userId, user._id],
 					numBits: 1024,
@@ -152,6 +148,14 @@ const messageHandlers = {
 						publicKey: key.publicKeyArmored,
 					}), users);
 				})
+				ws.send(createMessage('chatCreated', {
+					chatId: chatId,
+					contact: message.username
+				}));
+				server.broadcast(createMessage('chatCreated', {
+					chatId: chatId,
+					contact: ws._username
+				}), [message.username]);
 			});
 		});
 

@@ -15,6 +15,18 @@ import {chatSocket, createMessage} from "../communication/websocket-client";
 import {SessionAsyncStorage} from "../utils/async-storage";
 import {ReduxRouter} from "../utils/router";
 
+export function openHandler(ws) {
+	SessionAsyncStorage.getSession().then(function (session) {
+		session = JSON.parse(session);
+		if (!session || !Object.keys(session).length) {
+			ReduxRouter.go('login');
+			return;
+		}
+		ws.send(createMessage('authenticate', session));
+		setInterval(() => ws.send(createMessage('ping'), {}, session.sessionId), 50000);
+	});
+}
+
 class RouterComponent extends Component {
 	constructor(props){
 		super(props);
@@ -27,17 +39,7 @@ class RouterComponent extends Component {
 	}
 
 	componentWillMount() {
-		SessionAsyncStorage.getSession().then(function (session) {
-			session = JSON.parse(session);
-			if (!session || !Object.keys(session).length) {
-				ReduxRouter.go('login');
-				return;
-			}
-			chatSocket.initialMessage(function (ws) {
-				ws.send(createMessage('authenticate', session));
-				setInterval(() => ws.send(createMessage('ping'), {}, session.sessionId), 50000);
-			});
-		});
+
 	}
 
 	render() {

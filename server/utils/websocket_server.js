@@ -73,6 +73,16 @@ class ChatSocketServer {
 		return client._userId && users.indexOf(client._username) > -1;
 	}
 
+	isUserOnline(username) {
+		let foundClient = false;
+		this.wss.clients.forEach((client) => {
+			if (client._username === username) {
+				foundClient = true;
+			}
+		});
+		return foundClient;
+	}
+
 	broadcast(data, users) {
 		this.wss.clients.forEach((client) => {
 			if (client.readyState === ws.OPEN && this.checkUser(client, users)) {
