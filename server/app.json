@@ -2,7 +2,7 @@
   "name": "E2essage",
   "description": "A realtime messaging app with OpenPGP encryption",
   "repository": "https://github.com/uifi95/e2essage",
-  "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/master/public/node.svg",
+  "logo": "https://cdn.jsdelivr.net/gh/heroku/node-js-getting-started/public/node.svg",
   "keywords": ["node", "react-native", "e2essage"],
   "image": "heroku/nodejs"
 }
